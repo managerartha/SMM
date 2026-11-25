@@ -22,7 +22,7 @@ Masuk ke **https://console.cloud.google.com** dengan akun `info.arthasafetyindon
      Scope `drive.file` termasuk *non-sensitive*, jadi tidak perlu verifikasi Google.
 4. **Clients → Create client** → Application type **Web application** → nama `SMM` →
    **Authorized redirect URIs**: `https://mutu.arthasafetyindonesia.com/admin/google-drive/callback` → Create.
-5. Salin **Client ID** dan **Client secret** ke `smm/.env`:
+5. Salin **Client ID** dan **Client secret** ke `public_html/.env` (File Manager → klik kanan `.env` → Edit):
    ```
    GOOGLE_DRIVE_CLIENT_ID=xxxxxxxx.apps.googleusercontent.com
    GOOGLE_DRIVE_CLIENT_SECRET=GOCSPX-xxxxxxxx
@@ -37,7 +37,7 @@ Masuk ke **https://console.cloud.google.com** dengan akun `info.arthasafetyindon
    (Aman: aplikasinya milik Anda sendiri.)
 3. Kembali di SMM → **Uji koneksi & siapkan folder**. Di Drive akan muncul folder `SMM` dan `Backup SMM`.
 
-Token disimpan terenkripsi di `smm/storage/app/google/token.json` (di luar `public_html`, tidak masuk Git,
+Token disimpan terenkripsi di `storage/app/google/token.json` (tidak bisa dibuka dari web, tidak masuk Git,
 dienkripsi dengan `APP_KEY`). Bila `APP_KEY` berubah atau server dipindah, cukup **Hubungkan ulang**.
 
 ## Struktur folder di Drive

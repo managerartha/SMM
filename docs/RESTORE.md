@@ -21,7 +21,7 @@ Tanpa SSH, jalankan lewat **cron sekali jalan**:
 
 1. hPanel → **Advanced → Cron Jobs** → Custom, jadwal 1–2 menit ke depan, perintah:
    ```
-   /opt/alt/php83/usr/bin/php /home/u123456789/domains/mutu.arthasafetyindonesia.com/smm/artisan smm:restore --latest --force >> /home/u123456789/domains/mutu.arthasafetyindonesia.com/smm/storage/logs/restore.log 2>&1
+   /opt/alt/php83/usr/bin/php /home/u123456789/domains/mutu.arthasafetyindonesia.com/public_html/artisan smm:restore --latest --force >> /home/u123456789/domains/mutu.arthasafetyindonesia.com/public_html/storage/logs/restore.log 2>&1
    ```
    Untuk backup tertentu: ganti `--latest` dengan `--id=ID_BERKAS` (lihat daftar: perintah `smm:restore --list`
    dengan cara yang sama, hasilnya di log).
@@ -31,21 +31,21 @@ Tanpa SSH, jalankan lewat **cron sekali jalan**:
 Dengan SSH (bila diaktifkan di hPanel → Advanced → SSH Access):
 
 ```bash
-cd ~/domains/mutu.arthasafetyindonesia.com/smm
+cd ~/domains/mutu.arthasafetyindonesia.com/public_html
 php artisan smm:restore --list
 php artisan smm:restore --latest
 ```
 
 ## Skenario B – Pindah / pasang ulang server
 
-1. Pasang SMM sesuai [DEPLOY_HOSTINGER.md](DEPLOY_HOSTINGER.md) Langkah 1–6 dan 8, **tanpa** menjalankan installer
-   (Langkah 7). Database dibiarkan kosong. Di `.env` gunakan `SMM_BACKUP_PASSWORD` yang **sama** dan kredensial
-   Google dari **project Google Cloud yang sama**.
+1. Pasang SMM sesuai [DEPLOY_HOSTINGER.md](DEPLOY_HOSTINGER.md) Langkah 1–4 dan 5. Pada installer gunakan
+   **database baru yang kosong** dan kata sandi backup yang **sama** dengan backup yang akan dipulihkan. Isi kredensial
+   Google dari **project Google Cloud yang sama** di `.env`. (Akun GM dari installer akan tertimpa oleh isi backup.)
 2. Unduh ZIP backup terbaru dari Drive (`Backup SMM/Harian`) ke komputer, lalu unggah lewat File Manager ke
-   `smm/storage/app/private/`.
+   `public_html/storage/app/private/`.
 3. Jalankan lewat cron sekali jalan (lihat Skenario A) atau SSH:
    ```
-   /opt/alt/php83/usr/bin/php /home/u123456789/domains/mutu.arthasafetyindonesia.com/smm/artisan smm:restore --path=/home/u123456789/domains/mutu.arthasafetyindonesia.com/smm/storage/app/private/NAMA-BACKUP.zip --force
+   /opt/alt/php83/usr/bin/php /home/u123456789/domains/mutu.arthasafetyindonesia.com/public_html/artisan smm:restore --path=/home/u123456789/domains/mutu.arthasafetyindonesia.com/public_html/storage/app/private/NAMA-BACKUP.zip --force
    ```
    Restore membuat semua tabel sendiri (sudah diuji pada database kosong).
 4. Hapus ZIP dari `storage/app/private/` dan hapus cron sekali jalan.

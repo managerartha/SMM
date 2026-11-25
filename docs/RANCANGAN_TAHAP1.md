@@ -8,8 +8,8 @@ Dokumen ini mencatat keputusan rancangan yang sudah disetujui GM (25 Nov 2026).
 |---|---|
 | Stack | Laravel 12, PHP 8.2+, MySQL/MariaDB, Blade + Tailwind + Alpine (aset di-build sebelum ZIP) |
 | LMS | PHP murni + MySQL (repo `managerartha/LMS`). Kelas = **batch**, kode = `kode_batch`. SMM hanya membaca lewat adapter (Tahap 3) |
-| Deploy | ZIP via File Manager Hostinger + installer web; pembaruan lewat Admin → Pembaruan Sistem (tanpa SSH) |
-| Domain | `mutu.arthasafetyindonesia.com`, website sendiri di hPanel; kode aplikasi di luar `public_html` |
+| Deploy | ZIP diekstrak ke `public_html` + installer web yang menulis `.env` sendiri; pembaruan lewat Admin → Pembaruan Sistem (tanpa SSH) |
+| Domain | `mutu.arthasafetyindonesia.com`, website PHP sendiri di hPanel. Revisi 26 Nov 2026 atas permintaan GM: susunan **satu folder** di `public_html` (seperti LMS) supaya pemasangan sederhana; semua permintaan web dialihkan ke `index.php` sehingga berkas aplikasi tidak bisa dibuka langsung |
 | Penyimpanan berkas | **Google Drive** akun `info.arthasafetyindonesia@gmail.com` (OAuth, scope `drive.file`). Unggahan disimpan sementara di server, dipindah ke Drive oleh antrian, lalu salinan lokal dihapus setelah checksum cocok |
 | Unduhan | Selalu lewat aplikasi (cek hak akses); file Drive tidak pernah dibagikan |
 | Tanda air | Revisi lama: "TIDAK TERKENDALI". Revisi berlaku: "SALINAN TERKENDALI – nama – tanggal" (bisa dimatikan) |

@@ -24,11 +24,11 @@ berkas/Google Drive, log aktivitas, backup/restore, installer & pembaruan, admin
 | CSRF, XSS, SQL injection | ✅ | Token CSRF di semua form (diuji). Blade meng-escape semua keluaran, dan tiga `{!! !!}` hanya berisi teks statis atau SVG QR dari Fortify. Semua query lewat Eloquent/binding (tanpa SQL mentah selain impor restore) |
 | Validasi unggahan berdasarkan isi (MIME) | ✅ | `FileValidator`: finfo + magic bytes PDF, `getimagesize` untuk gambar, struktur ZIP untuk DOCX/XLSX. **DOCX/XLSX bermakro ditolak.** Nama berkas diganti UUID |
 | Cek hak akses di server untuk unduhan & aksi | ✅ | `DocumentPolicy` / `ExternalDocumentPolicy` dipanggil di layanan, bukan hanya di tampilan. ID revisi dari dokumen lain ditolak (404) |
-| `.env`, kredensial Google, storage tidak bisa diakses web & tidak masuk Git | ✅ | Kode berada di `smm/` di luar `public_html`. `.htaccess` menolak dotfile dan semua PHP selain `index.php`. Token Google dienkripsi (APP_KEY) dengan izin 0600. `.gitignore` mencakup semuanya |
+| `.env`, kredensial Google, storage tidak bisa diakses web & tidak masuk Git | ✅ | Susunan satu folder di `public_html` (atas permintaan GM): `.htaccess` mengalihkan **semua** permintaan ke `index.php` kecuali aset `build/`, favicon, robots; dotfile ditolak (403). Diuji di Apache: `/.env`, `/storage/…`, `/vendor/…`, `/composer.json`, `/artisan` → 403/404. Token Google dienkripsi (APP_KEY) dengan izin 0600. `.gitignore` mencakup semuanya |
 | Berkas di luar folder publik, unduh hanya lewat aplikasi | ✅ | Berkas di Google Drive (tidak pernah dibagikan) atau sementara di `storage/app/private`. Unduhan dikirim sebagai *attachment* dengan `nosniff` dan `no-store` |
 | Akun dinonaktifkan, bukan dihapus | ✅ | Tidak ada rute hapus pengguna (diuji). Sesi pengguna nonaktif atau auditor kedaluwarsa langsung diputus |
 | Log aktivitas append-only | ✅ | Model menolak update/delete. Rantai hash SHA-256 mendeteksi perubahan langsung di database. Diperiksa otomatis tiap Senin, dengan email ke GM bila tidak utuh |
-| Tidak menyentuh folder aplikasi lain | ✅ | Semua jalur relatif terhadap `smm/` (`storage_path`). Database dan user database terpisah dari LMS/leads |
+| Tidak menyentuh folder aplikasi lain | ✅ | Semua jalur relatif terhadap folder aplikasi (`storage_path`). Database dan user database terpisah dari LMS/leads |
 | Header keamanan | ✅ | CSP, X-Frame-Options DENY, nosniff, Referrer-Policy, HSTS (HTTPS), dan pengalihan paksa ke HTTPS |
 
 ## Temuan yang ditemukan dan sudah diperbaiki selama tinjauan
@@ -46,6 +46,7 @@ berkas/Google Drive, log aktivitas, backup/restore, installer & pembaruan, admin
 
 | # | Risiko | Tingkat | Rekomendasi |
 |---|---|---|---|
+| R0 | Kode aplikasi berada di dalam `public_html` (susunan satu folder). Keamanan bergantung pada `.htaccess`; bila `.htaccess` terhapus/tidak terbaca, berkas seperti `composer.json` bisa terbuka | Rendah–Sedang | `.env` & dotfile tetap ditolak oleh `<FilesMatch>`; berkas unggahan hanya sementara sebelum pindah ke Drive. Setelah pembaruan, cek `https://mutu…/.env` → harus 403 |
 | R1 | SMM, LMS, dan sistem leads berjalan sebagai **user Linux yang sama** di satu akun hosting. Bila salah satu aplikasi dibobol, penyerang bisa membaca berkas aplikasi lain, termasuk `.env` SMM | Sedang | User database sudah terpisah. Jaga LMS & leads tetap mutakhir dan tidak memakai kata sandi yang sama. Jangka panjang: pisahkan SMM ke akun hosting/VPS sendiri |
 | R2 | Pemilik akses database (hPanel/phpMyAdmin) bisa mengubah tabel secara langsung | Rendah–Sedang | Rantai hash mendeteksi perubahan pada log aktivitas (cek mingguan + email). Batasi siapa yang memegang akses hPanel, dan aktifkan 2FA di akun Hostinger |
 | R3 | Data utama dan backup berada di satu akun Google | Sedang | Aktifkan 2FA di akun Gmail dan pasang Google Drive for Desktop (mirror) di PC kantor sebagai salinan kedua |

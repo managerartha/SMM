@@ -78,7 +78,7 @@ tanda air PDF, legalitas & pengingat, validasi berkas, log append-only, backup t
 | `php artisan smm:files-push --failed` | Ulangi pemindahan berkas yang gagal ke Drive |
 | `php artisan smm:drive-health` | Cek koneksi Drive |
 | `php artisan smm:verify-log` | Periksa keutuhan log aktivitas |
-| `tools/build-hostinger.sh` | Membuat `dist/smm-hostinger.zip` untuk diunggah |
+| `tools/build-hostinger.sh` | Membuat `dist/smm-hostinger.zip` (diekstrak langsung ke `public_html`) |
 
 ## Struktur kode
 

@@ -1,0 +1,32 @@
+# SMM – susunan satu folder. SEMUA permintaan masuk lewat index.php,
+# kecuali aset tampilan (build/, favicon, robots). Berkas lain (.env, storage, vendor, …)
+# tidak pernah dilayani langsung oleh server web.
+DirectoryIndex index.php
+Options -Indexes -MultiViews
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Paksa HTTPS
+    RewriteCond %{HTTPS} !=on
+    RewriteCond %{HTTP:X-Forwarded-Proto} !=https
+    RewriteCond %{HTTP_HOST} !^(localhost|127\.0\.0\.1)(:\d+)?$
+    RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+    # Header Authorization & XSRF
+    RewriteCond %{HTTP:Authorization} .
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+    # Aset tampilan dilayani dari folder public/
+    RewriteRule ^public/(build/.+|favicon\.ico|robots\.txt)$ - [L]
+    RewriteRule ^(build/.+|favicon\.ico|robots\.txt)$ public/$1 [L]
+
+    # Selain itu → aplikasi
+    RewriteRule ^index\.php$ - [L]
+    RewriteRule ^ index.php [L]
+</IfModule>
+
+# Lapisan cadangan bila mod_rewrite mati
+<FilesMatch "^\.">
+    Require all denied
+</FilesMatch>
