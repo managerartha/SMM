@@ -56,7 +56,7 @@ class AppServiceProvider extends ServiceProvider
             'external_document_version' => ExternalDocumentVersion::class,
         ]);
 
-        if ($this->app->isProduction()) {
+        if (str_starts_with((string) config('app.url'), 'https://')) {
             URL::forceScheme('https');
         }
 

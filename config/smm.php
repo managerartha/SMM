@@ -12,6 +12,9 @@ return [
 
     'install_token' => env('SMM_INSTALL_TOKEN'),
 
+    // Isi hanya bila situs berada di belakang CDN/proxy (mis. '*' atau daftar IP), supaya IP pengguna di log benar.
+    'trusted_proxies' => env('TRUSTED_PROXIES', ''),
+
     'drive' => [
         'driver' => env('SMM_DRIVE_DRIVER', 'local'), // local | google
         'client_id' => env('GOOGLE_DRIVE_CLIENT_ID'),

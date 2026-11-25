@@ -10,13 +10,13 @@
         "druidfi/mysqldump-php": "^2.0",
         "laravel/fortify": "^1.44",
         "laravel/framework": "^12.0",
-        "laravel/tinker": "^2.10.1",
         "openspout/openspout": "^5.3",
         "setasign/fpdf": "^1.9",
         "setasign/fpdi": "^2.6",
         "spatie/laravel-permission": "^8.5"
     },
     "require-dev": {
+        "laravel/tinker": "^2.10.1",
         "fakerphp/faker": "^1.23",
         "laravel/pail": "^1.2.2",
         "laravel/pint": "^1.24",
