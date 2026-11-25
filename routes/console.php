@@ -17,3 +17,4 @@ Schedule::command('smm:backup bulanan')->monthlyOn(1, '02:00')->withoutOverlappi
 Schedule::command('smm:drive-health')->dailyAt('06:30');
 Schedule::command('smm:cleanup-tmp')->hourly();
 Schedule::command('queue:prune-failed --hours=720')->weekly();
+Schedule::command('smm:verify-log')->weeklyOn(1, '06:00');

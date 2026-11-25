@@ -26,7 +26,7 @@ Dokumen ini mencatat keputusan rancangan yang sudah disetujui GM (25 Nov 2026).
 
 - Berkas tidak pernah ditimpa/dihapus: setiap revisi/versi = file baru.
 - Soft delete (arsip/nonaktif) di semua data.
-- Nomor dibuat di transaksi dengan `SELECT … FOR UPDATE` + tabel `issued_numbers` unik.
+- Nomor dibuat di transaksi dengan `SELECT … FOR UPDATE` (isolasi READ COMMITTED) + tabel `issued_numbers` unik.
 - Log aktivitas append-only dengan rantai hash (`php artisan smm:verify-log`).
 - Matriks pengesahan generik (`approval_rules.subject_key`) supaya Tahap 2–4 tinggal menambah baris.
 
