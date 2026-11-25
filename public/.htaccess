@@ -1,3 +1,5 @@
+DirectoryIndex index.php
+
 <IfModule mod_rewrite.c>
     <IfModule mod_negotiation.c>
         Options -MultiViews -Indexes
@@ -32,11 +34,3 @@
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
 </IfModule>
-
-# Jangan jalankan PHP selain index.php
-<FilesMatch "\.(php|phtml|phar)$">
-    Require all denied
-</FilesMatch>
-<Files "index.php">
-    Require all granted
-</Files>

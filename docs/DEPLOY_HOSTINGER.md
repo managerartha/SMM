@@ -131,6 +131,7 @@ backup harian (01.00 WIB), backup bulanan (tgl 1, 02.00 WIB), cek Drive (06.30 W
 
 | Gejala | Solusi |
 |---|---|
+| 403 Forbidden di halaman utama | Pastikan `public_html/index.php` & `public_html/.htaccess` ada langsung di `public_html` (bukan `public_html/public_html/`), permission folder 755 & berkas 644, dan `.htaccess` diawali `DirectoryIndex index.php` |
 | Error 500 / halaman kosong | Cek PHP 8.3 (Langkah 2). Lihat `smm/storage/logs/laravel.log` |
 | "No application encryption key" | `.env` tidak bisa ditulis saat pertama dibuka → isi `APP_KEY` manual: minta Claude membuatkan, atau ubah permission `.env` ke 644 sementara lalu muat ulang |
 | Upload gagal untuk berkas besar | Naikkan `upload_max_filesize`/`post_max_size` (Langkah 2) dan Admin → Pengaturan → ukuran maksimum |
