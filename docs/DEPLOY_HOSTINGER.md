@@ -30,6 +30,11 @@ Semua berkas unggahan berada di Google Drive. Berkas sementara di `smm/storage/a
 2. Nama domain: `mutu.arthasafetyindonesia.com` → **Create**.
 3. Hasilnya folder `domains/mutu.arthasafetyindonesia.com/public_html`.
 
+> ⚠️ **Jangan pilih "Node.js app"** dan jangan memakai wizard "Upload website/ZIP". SMM adalah aplikasi PHP.
+> Bila dashboard website menampilkan ikon "JS", "Versi node", atau "Root directory", berarti website terbuat
+> sebagai Node.js: hapus website itu lalu buat ulang sebagai **Empty PHP/HTML website**. Website PHP memiliki menu
+> **File Manager** dan **PHP Configuration**.
+
 > Jangan memakai menu **Domains → Subdomains** (yang membuat folder `public_html/mutu` di dalam situs utama),
 > karena folder `smm/` harus berada **di luar** `public_html`.
 
