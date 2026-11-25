@@ -153,7 +153,15 @@ class GoogleDriveGateway implements DriveGateway
 
     private function request(): PendingRequest
     {
-        return Http::withToken($this->oauth->accessToken())->acceptJson()->timeout(60)->retry(3, 1000, throw: false);
+        // Ulangi hanya untuk gangguan sementara (jaringan, 429, 5xx), bukan 404/403.
+        return Http::withToken($this->oauth->accessToken())->acceptJson()->timeout(60)->retry(3, 1000, function (\Throwable $e) {
+            if ($e instanceof \Illuminate\Http\Client\ConnectionException) {
+                return true;
+            }
+            $status = $e instanceof \Illuminate\Http\Client\RequestException ? $e->response->status() : 0;
+
+            return $status === 429 || $status >= 500;
+        }, throw: false);
     }
 
     private function ensureOk(Response $res, string $what): void
