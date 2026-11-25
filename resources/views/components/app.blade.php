@@ -69,7 +69,7 @@
     <div class="mx-auto flex max-w-7xl">
         {{-- Menu samping --}}
         <div x-cloak x-show="open" class="fixed inset-0 z-20 bg-black/30 lg:hidden" @click="open = false"></div>
-        <nav :class="open ? 'translate-x-0' : '-translate-x-full'" class="fixed inset-y-0 left-0 z-20 w-64 transform overflow-y-auto bg-white pt-14 shadow-lg transition lg:static lg:translate-x-0 lg:bg-transparent lg:pt-4 lg:shadow-none">
+        <nav :class="open ? 'translate-x-0!' : ''" class="fixed inset-y-0 left-0 z-20 w-64 -translate-x-full transform overflow-y-auto bg-white pt-14 shadow-lg transition lg:static lg:translate-x-0 lg:bg-transparent lg:pt-4 lg:shadow-none">
             <ul class="space-y-0.5 px-3 text-sm">
                 @foreach ($nav as [$label, $route, $pattern, $allowed])
                     @if ($allowed)

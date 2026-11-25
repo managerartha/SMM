@@ -42,3 +42,7 @@
 @utility btn-sm {
     @apply px-2.5 py-1.5 text-xs;
 }
+
+@layer base {
+    *, ::after, ::before, ::backdrop, ::file-selector-button { border-color: var(--color-slate-200, currentColor); }
+}

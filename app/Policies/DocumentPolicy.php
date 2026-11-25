@@ -41,8 +41,11 @@ class DocumentPolicy
         if ($this->manage($user, $doc) || $user->can('dokumen.kelola')) {
             return true;
         }
+        if ($user->can('dokumen.lihat-semua')) {
+            return true; // termasuk arsip & dokumen yang belum berlaku (tanpa hak unduh draf)
+        }
         if ($doc->isArchived()) {
-            return $user->can('dokumen.lihat-semua');
+            return false;
         }
         if ($this->isInvolved($user, $doc)) {
             return true;

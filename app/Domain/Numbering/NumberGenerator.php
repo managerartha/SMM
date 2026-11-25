@@ -48,11 +48,9 @@ class NumberGenerator
         }
         $scopeKey = implode('|', $scopeParts);
 
-        return DB::transaction(function () use ($objectType, $pattern, $values, $scopeKey, $userId) {
-            DB::table('number_sequences')->insertOrIgnore([
-                'scope_key' => $scopeKey, 'last_value' => 0, 'created_at' => now(), 'updated_at' => now(),
-            ]);
+        SequenceRows::ensure($scopeKey);
 
+        return DB::transaction(function () use ($objectType, $pattern, $values, $scopeKey, $userId) {
             $seq = DB::table('number_sequences')->where('scope_key', $scopeKey)->lockForUpdate()->first();
             $value = (int) $seq->last_value;
 

@@ -5,6 +5,7 @@ namespace App\Domain\Activity;
 use App\Models\ActivityLog;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
+use App\Domain\Numbering\SequenceRows;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -34,9 +35,10 @@ class ActivityLogger
             'user_agent' => $request ? mb_substr((string) $request->userAgent(), 0, 500) : 'console',
         ];
 
+        SequenceRows::ensure('__activity_chain');
+
         return DB::transaction(function () use ($row) {
             // Kunci penghitung khusus supaya rantai hash tidak bercabang saat dua permintaan bersamaan.
-            DB::table('number_sequences')->insertOrIgnore(['scope_key' => '__activity_chain', 'last_value' => 0, 'created_at' => now(), 'updated_at' => now()]);
             DB::table('number_sequences')->where('scope_key', '__activity_chain')->lockForUpdate()->first();
 
             $prev = DB::table('activity_logs')->orderByDesc('id')->value('hash') ?? self::GENESIS;
