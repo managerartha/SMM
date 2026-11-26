@@ -35,6 +35,11 @@
         ],
         'Kinerja' => [
             ['Sasaran Mutu & KPI', 'kpis.index', 'kpis.*', $u->can('kpi.lihat')],
+            ['Laporan Kinerja', 'reports.index', 'reports.*', $u->can('laporan.lihat')],
+            ['Audit Internal', 'audits.index', 'audits.*', $u->can('audit.lihat') || $u->can('audit.laksana')],
+            ['Tinjauan Manajemen', 'reviews.index', 'reviews.*', $u->can('tinjauan.lihat')],
+            ['Program Inovasi', 'innovations.index', 'innovations.*', $u->can('inovasi.lihat')],
+            ['Paket Bukti', 'evidence.index', 'evidence.*', $u->can('paket.unduh') || $u->can('paket.buat')],
             ['Log Aktivitas', 'activity.index', 'activity.*', $u->can('log.lihat')],
         ],
     ];
@@ -110,7 +115,6 @@
                     @endforeach
                 </ul>
             @endif
-            <p class="px-6 pb-6 text-[11px] text-slate-400">Tahap mendatang: Audit Internal, Tinjauan Manajemen, Inovasi, Laporan & Paket Bukti.</p>
         </nav>
 
         <main class="min-w-0 flex-1 px-3 py-4 sm:px-5 lg:py-6">

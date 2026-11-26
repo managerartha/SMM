@@ -12,6 +12,7 @@ Laravel 12 · PHP 8.3 · MySQL/MariaDB · berkas disimpan di Google Drive.
 | [docs/TINJAUAN_KEAMANAN.md](docs/TINJAUAN_KEAMANAN.md) | Laporan tinjauan keamanan |
 | [docs/TAHAP2.md](docs/TAHAP2.md) | NCR & CAPA, Keluhan & Feedback, Risiko & Peluang |
 | [docs/TAHAP3.md](docs/TAHAP3.md) | Kelas & Catatan Mutu, Personel, Sarana, Survei, KPI, Pemasok |
+| [docs/TAHAP4.md](docs/TAHAP4.md) | Audit Internal, Tinjauan Manajemen, Inovasi, Laporan Kinerja, Paket Bukti |
 | [docs/LMS_ADAPTER.md](docs/LMS_ADAPTER.md) | Impor CSV/Excel & kontrak API LMS |
 
 ## Menjalankan di komputer lokal (± 10 menit)
@@ -45,6 +46,9 @@ Buka http://localhost:8000. Akun contoh (kata sandi semuanya `password`):
 | cs@contoh.test | Staf CS |
 | trainer@contoh.test | Trainer |
 | auditor@contoh.test | Auditor (akun berlaku 3 bulan) |
+
+Data contoh Tahap 4: program audit 2026 (disahkan) dengan audit yang menunggu pengesahan laporan (temuan minor → NCR),
+tinjauan manajemen draf dengan tindak lanjut, 2 inovasi, laporan kinerja bulan lalu.
 
 Data contoh Tahap 3: 3 program, 3 kelas & 17 respons survei (diimpor lewat CSV), catatan mutu, 2 personel,
 3 sarana, 2 pemasok, 4 KPI dengan realisasi otomatis/manual.
@@ -109,5 +113,4 @@ app/Policies/      semua aturan hak akses
 config/smm.php     peran, izin, master data bawaan, pola nomor
 ```
 
-Tahap 4 (audit internal, tinjauan manajemen, inovasi, laporan, Paket Bukti) memakai ulang tabel `files`,
-`number_sequences`, `approval_rules`, `evidence_categories`, dan `activity_logs` tanpa membongkar yang ada.
+Tahap 4 ada di `app/Domain/Audits`, `Reviews`, `Innovations`, `Reports` (PDF lewat dompdf), dan `Evidence` (Paket Bukti).

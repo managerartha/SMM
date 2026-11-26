@@ -15,6 +15,7 @@ use App\Models\DocumentRevision;
 use App\Models\DocumentType;
 use App\Models\ExternalDocument;
 use App\Models\StoredFile;
+use App\Support\Format;
 use App\Support\Settings;
 use Illuminate\Http\Request;
 
@@ -83,12 +84,32 @@ class DashboardController extends Controller
             'facilities_due' => $user->can('sarana.lihat') ? \App\Models\Facility::where('status', 'aktif')->where(fn ($q) => $q->whereDate('next_inspection_at', '<=', now()->addDays(14))->orWhere(fn ($c) => $c->where('needs_calibration', true)->whereDate('next_calibration_at', '<=', now()->addDays(14))))->count() : null,
         ];
 
+        // Tahap 4
+        $p4 = collect();
+        if ($matrix->canApprove($user, 'audit_program_annual', 'mutu.sahkan')) {
+            \App\Models\AuditProgram::where('status', 'pengesahan')->get()->each(fn ($p) => $p4->push(['Program Audit '.$p->year, route('audits.programs.show', $p), 'Sahkan', 'purple']));
+        }
+        if ($matrix->canApprove($user, 'audit_report_process', 'mutu.sahkan')) {
+            \App\Models\Audit::where('status', 'pengesahan')->where('auditor_id', '!=', $user->id)->get()->each(fn ($a) => $p4->push([$a->number.' – laporan audit '.$a->process, route('audits.show', $a), 'Sahkan', 'purple']));
+        }
+        if ($matrix->canApprove($user, 'management_review_minutes', 'mutu.sahkan')) {
+            \App\Models\ManagementReview::where('status', 'pengesahan')->get()->each(fn ($m) => $p4->push([$m->number.' – notulen tinjauan manajemen', route('reviews.show', $m), 'Sahkan', 'purple']));
+        }
+        \App\Models\Innovation::where('status', 'usulan')->get()->filter(fn ($i) => $matrix->canApprove($user, $i->approvalKey(), 'mutu.sahkan'))
+            ->each(fn ($i) => $p4->push([$i->number.' – '.$i->title, route('innovations.show', $i), 'Setujui inovasi', 'purple']));
+        \App\Models\PerformanceReport::where('status', 'pengesahan')->get()->filter(fn ($r) => $matrix->canApprove($user, $r->approvalKey(), 'mutu.sahkan'))
+            ->each(fn ($r) => $p4->push([$r->number.' – laporan kinerja '.$r->periodLabel(), route('reports.show', $r), 'Sahkan', 'purple']));
+        \App\Models\Audit::where('auditor_id', $user->id)->whereIn('status', ['rencana', 'pelaksanaan'])->orderBy('planned_date')->get()
+            ->each(fn ($a) => $p4->push([$a->number.' – audit '.$a->process.' ('.Format::date($a->planned_date).')', route('audits.show', $a), 'Laksanakan audit', 'blue']));
+        \App\Models\ReviewAction::with('review')->where('pic_id', $user->id)->whereNull('completed_at')->orderBy('due_date')->get()
+            ->each(fn ($a) => $p4->push([$a->review->number.' – '.\Illuminate\Support\Str::limit($a->description, 50).' ('.Format::date($a->due_date).')', route('reviews.show', $a->review), 'Tindak lanjut TM', $a->due_date->isPast() ? 'red' : 'amber']));
+
         $backup = $user->can('backup.kelola') ? BackupRun::orderByDesc('id')->first() : null;
         $pendingFiles = $user->can('backup.kelola') ? StoredFile::whereIn('state', [StoredFile::PENDING, StoredFile::FAILED])->count() : null;
         $driveHealth = $user->can('backup.kelola') ? Settings::get('drive.last_health') : null;
         $activity = $user->can('log.lihat') ? ActivityLog::orderByDesc('id')->limit(8)->get() : collect();
 
         return view('dashboard', compact('toReview', 'toApprove', 'myDrafts', 'reviewDue', 'external', 'stats', 'backup', 'pendingFiles', 'driveHealth', 'activity',
-            'myActions', 'toVerify', 'checksDue', 'toClose', 'myComplaints', 'qms', 'kpiStatus', 'lastPeriod', 'ops'));
+            'myActions', 'toVerify', 'checksDue', 'toClose', 'myComplaints', 'qms', 'kpiStatus', 'lastPeriod', 'ops', 'p4'));
     }
 }

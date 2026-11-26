@@ -77,6 +77,29 @@ class FileStore
         return $file;
     }
 
+    /** Simpan berkas buatan sistem (PDF laporan, ZIP paket bukti) – dipindah ke Drive lewat antrian seperti unggahan biasa. */
+    public function storeGenerated(string $localPath, string $ext, string $mime, string $folderPath, string $baseName, string $purpose, ?Model $attachable, ?User $user, ?string $originalName = null): StoredFile
+    {
+        $uuid = (string) Str::uuid();
+        $dir = storage_path('app/private/pending');
+        File::ensureDirectoryExists($dir, 0700);
+        $local = $dir.'/'.$uuid.'.'.$ext;
+        if (! @copy($localPath, $local)) {
+            throw new RuntimeException('Gagal menyimpan berkas sementara.');
+        }
+        $file = StoredFile::create([
+            'uuid' => $uuid, 'original_name' => $originalName ?? $this->cleanName($baseName).'.'.$ext, 'extension' => $ext, 'mime' => $mime,
+            'size' => filesize($local), 'sha256' => hash_file('sha256', $local), 'md5' => md5_file($local),
+            'state' => StoredFile::PENDING, 'local_path' => 'pending/'.$uuid.'.'.$ext,
+            'drive_folder_path' => $this->cleanPath($folderPath), 'drive_name' => $this->cleanName($baseName).'.'.$ext,
+            'attachable_type' => $attachable?->getMorphClass(), 'attachable_id' => $attachable?->getKey(),
+            'purpose' => $purpose, 'uploaded_by' => $user?->id,
+        ]);
+        DB::afterCommit(fn () => PushFileToDrive::dispatch($file->id));
+
+        return $file;
+    }
+
     public function attach(StoredFile $file, Model $attachable): void
     {
         $file->update(['attachable_type' => $attachable->getMorphClass(), 'attachable_id' => $attachable->getKey()]);

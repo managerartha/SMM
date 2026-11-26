@@ -2,14 +2,14 @@
 <!DOCTYPE html>
 <html lang="id"><head><meta charset="utf-8"><title>{{ $ncr->number }}</title>
 <style>
-    body { font: 11pt/1.4 Arial, sans-serif; color: #111; margin: 24px; }
+    body { font: 10pt/1.4 'DejaVu Sans', Arial, sans-serif; color: #111; margin: 24px; }
     h1 { font-size: 15pt; margin: 0; } h2 { font-size: 11.5pt; margin: 16px 0 6px; border-bottom: 1px solid #999; }
     table { width: 100%; border-collapse: collapse; } td, th { border: 1px solid #999; padding: 4px 6px; vertical-align: top; text-align: left; font-size: 10pt; }
     th { background: #eee; } .muted { color: #555; font-size: 9pt; } .pre { white-space: pre-line; }
     @media print { .noprint { display: none; } body { margin: 0; } }
 </style></head>
 <body>
-<p class="noprint"><button onclick="window.print()">Cetak / simpan PDF</button></p>
+@unless ($pdf ?? false)<p class="noprint"><button onclick="window.print()">Cetak / simpan PDF</button></p>@endunless
 <table><tr><td style="width:65%"><h1>LAPORAN KETIDAKSESUAIAN & TINDAKAN KOREKTIF</h1><div class="muted">PT Artha Safety Indonesia · Sistem Manajemen Mutu</div></td>
 <td><b>{{ $ncr->number }}</b><br>Status: {{ $ncr->statusLabel() }}<br><span class="muted">Dicetak {{ Format::dateTime(now()) }}</span></td></tr></table>
 

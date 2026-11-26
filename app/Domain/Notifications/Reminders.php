@@ -34,6 +34,7 @@ class Reminders
             'external' => $this->external(), 'review' => $this->reviews(), 'capa' => $this->capaActions(),
             'efektivitas' => $this->effectiveness(), 'keluhan' => $this->complaints(), 'risiko' => $this->risks(),
             'personel' => $this->personnelDocuments(), 'sarana' => $this->facilities(),
+            'audit' => $this->audits(), 'tindak_lanjut_tm' => $this->reviewActions(),
         ];
     }
 
@@ -259,6 +260,43 @@ class Reminders
                         $sent++;
                     }
                 }
+            });
+
+        return $sent;
+    }
+
+    /** Audit terjadwal dalam 7 hari ke depan → auditor & auditi. */
+    public function audits(): int
+    {
+        $sent = 0;
+        \App\Models\Audit::with(['auditor', 'auditee'])->where('status', 'rencana')->whereBetween('planned_date', [now()->toDateString(), now()->addDays(7)->toDateString()])
+            ->get()->each(function ($a) use (&$sent) {
+                if (! $this->claim($a, 'audit-7', $a->planned_date->toDateString())) {
+                    return;
+                }
+                $this->notifier->send(collect([$a->auditor, $a->auditee]), new SmmNotification(
+                    "Audit internal {$a->number} pada ".Format::date($a->planned_date),
+                    ["Proses: {$a->process}. Auditor: {$a->auditor->name}."], 'Buka audit', route('audits.show', $a), 'info'));
+                $sent++;
+            });
+
+        return $sent;
+    }
+
+    /** Tindak lanjut tinjauan manajemen yang jatuh tempo ≤ 7 hari / lewat. */
+    public function reviewActions(): int
+    {
+        $sent = 0;
+        \App\Models\ReviewAction::with(['pic', 'review'])->where('status', 'terbuka')->whereHas('review', fn ($q) => $q->where('status', 'disahkan'))
+            ->whereDate('due_date', '<=', now()->addDays(7)->toDateString())->get()->each(function ($a) use (&$sent) {
+                $overdue = $a->due_date->lt(now()->startOfDay());
+                if (! $this->claim($a, $overdue ? 'overdue' : 'due-7', $a->due_date->toDateString())) {
+                    return;
+                }
+                $this->notifier->send($a->pic, new SmmNotification(
+                    ($overdue ? 'Lewat tenggat' : 'Segera jatuh tempo').": tindak lanjut {$a->review->number}",
+                    [$a->description, 'Tenggat: '.Format::date($a->due_date).'.'], 'Buka', route('reviews.show', $a->review), $overdue ? 'danger' : 'warning'));
+                $sent++;
             });
 
         return $sent;

@@ -89,3 +89,14 @@ Langkah ujinya ada di `docs/DEPLOY_HOSTINGER.md` Langkah 9 dan `docs/RESTORE.md`
 - Catatan mutu disaring per divisi; lampiran dicek hak aksesnya ke objek induk.
 - Temuan saat pengujian & sudah diperbaiki: tipe `personnel_document` belum terdaftar sehingga pengingat masa berlaku
   berkas personel akan gagal di cron (ditemukan oleh tes, sekarang tercakup).
+
+## Tambahan Tahap 4 (Audit, Tinjauan Manajemen, Inovasi, Laporan, Paket Bukti)
+
+- **Independensi auditor** diperiksa di server: auditor tidak boleh mengaudit divisinya sendiri, dan auditor tidak bisa mengesahkan laporan auditnya sendiri. Keduanya diuji.
+- Semua pengesahan memakai Matriks Pengesahan di sisi server, termasuk inovasi yang pengesahnya ditentukan dari anggaran. Nama, jabatan, dan waktu pengesah disimpan dan dicetak di PDF.
+- PDF dibuat lokal dengan dompdf. **Sumber remote dimatikan** dan akses berkas dibatasi ke folder aplikasi (chroot), sehingga isi teks dari pengguna tidak bisa memuat berkas atau URL luar.
+- Paket Bukti hanya bisa dibuat oleh pemegang `paket.buat` dan diunduh oleh pemegang `paket.unduh`, lewat `/lampiran/{uuid}` dengan cek hak akses.
+  - Dokumen terkendali di dalam paket selalu diberi tanda air.
+  - Data pribadi peserta tetap tidak ada, karena paket hanya memakai data yang sudah ada di SMM.
+- Pembuatan paket berjalan di antrian dengan batas waktu dan satu paket dalam satu waktu, supaya hosting tidak terbebani.
+- Temuan saat pengujian dan sudah diperbaiki: kolom peserta tinjauan wajib di database, sehingga pembuatan tinjauan tanpa peserta gagal (500). Sekarang kolom itu opsional saat dibuat dan wajib saat notulen disimpan.

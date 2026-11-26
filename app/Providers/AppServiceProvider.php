@@ -68,6 +68,13 @@ class AppServiceProvider extends ServiceProvider
             'supplier' => \App\Models\Supplier::class,
             'lms_import' => \App\Models\LmsImport::class,
             'kpi' => \App\Models\Kpi::class,
+            'audit_program' => \App\Models\AuditProgram::class,
+            'audit' => \App\Models\Audit::class,
+            'management_review' => \App\Models\ManagementReview::class,
+            'review_action' => \App\Models\ReviewAction::class,
+            'innovation' => \App\Models\Innovation::class,
+            'performance_report' => \App\Models\PerformanceReport::class,
+            'evidence_package' => \App\Models\EvidencePackage::class,
         ]);
 
         if (str_starts_with((string) config('app.url'), 'https://')) {

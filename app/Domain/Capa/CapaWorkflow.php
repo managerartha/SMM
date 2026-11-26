@@ -36,9 +36,12 @@ class CapaWorkflow
     ) {}
 
     /** @param UploadedFile[] $attachments */
-    public function create(User $user, array $data, array $attachments = []): Ncr
+    /** @param bool $authorize false hanya untuk NCR otomatis dari temuan audit (hak akses sudah dicek di modul audit). */
+    public function create(User $user, array $data, array $attachments = [], bool $authorize = true): Ncr
     {
-        Gate::forUser($user)->authorize('create', Ncr::class);
+        if ($authorize) {
+            Gate::forUser($user)->authorize('create', Ncr::class);
+        }
         $pic = $this->activeUser($data['pic_id'] ?? null, 'pic_id', 'Pilih penanggung jawab NCR yang aktif.');
 
         return DB::transaction(function () use ($user, $data, $attachments, $pic) {

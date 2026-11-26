@@ -6,7 +6,7 @@
         <div class="card card-body"><p class="text-xs text-slate-500">Dokumen berlaku</p><p class="mt-1 text-2xl font-semibold">{{ $stats['berlaku'] }}</p></div>
         @if (! is_null($stats['proses']))<div class="card card-body"><p class="text-xs text-slate-500">Revisi dalam proses</p><p class="mt-1 text-2xl font-semibold">{{ $stats['proses'] }}</p></div>@endif
         @if (! is_null($stats['legalitas']))<div class="card card-body"><p class="text-xs text-slate-500">Legalitas & kontrak</p><p class="mt-1 text-2xl font-semibold">{{ $stats['legalitas'] }}</p></div>@endif
-        @php $pending = $toReview->count() + $toApprove->count() + $myActions->count() + $toVerify->count() + $checksDue->count() + $toClose->count() + $myComplaints->count(); @endphp
+        @php $pending = $toReview->count() + $toApprove->count() + $myActions->count() + $toVerify->count() + $checksDue->count() + $toClose->count() + $myComplaints->count() + $p4->count(); @endphp
         <div class="card card-body"><p class="text-xs text-slate-500">Menunggu tindakan saya</p><p class="mt-1 text-2xl font-semibold {{ $pending ? 'text-red-600' : '' }}">{{ $pending }}</p></div>
     </div>
     <div class="mb-5 grid grid-cols-2 gap-3 md:grid-cols-4">
@@ -71,6 +71,9 @@
                 @endforeach
                 @foreach ($myComplaints as $c)
                     <li class="flex items-center justify-between gap-2 px-4 py-2.5"><a class="link" href="{{ route('complaints.show', $c) }}">{{ $c->number }} – {{ $c->subject }}</a><x-badge color="amber">Tanggapi</x-badge></li>
+                @endforeach
+                @foreach ($p4 as [$label, $url, $badge, $color])
+                    <li class="flex items-center justify-between gap-2 px-4 py-2.5"><a class="link" href="{{ $url }}">{{ $label }}</a><x-badge :color="$color">{{ $badge }}</x-badge></li>
                 @endforeach
                 @if ($pending === 0 && $myDrafts->isEmpty())
                     <li class="px-4 py-6 text-center text-slate-500">Tidak ada yang menunggu. 👍</li>

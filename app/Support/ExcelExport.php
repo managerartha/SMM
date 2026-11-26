@@ -35,6 +35,22 @@ class ExcelExport
         return response()->download($path, $name.' '.now()->format('Y-m-d').'.xlsx')->deleteFileAfterSend();
     }
 
+    /** Tulis .xlsx ke berkas (dipakai Paket Bukti). */
+    public static function toFile(string $path, array $headers, iterable $rows): int
+    {
+        $writer = new Writer;
+        $writer->openToFile($path);
+        $writer->addRow(Row::fromValuesWithStyle($headers, new Style(fontBold: true, backgroundColor: 'DBEAFE')));
+        $n = 0;
+        foreach ($rows as $row) {
+            $writer->addRow(Row::fromValues(array_map(fn ($v) => is_scalar($v) || $v === null ? self::safe($v) : (string) $v, $row)));
+            $n++;
+        }
+        $writer->close();
+
+        return $n;
+    }
+
     /** Cegah formula injection di Excel. */
     private static function safe(mixed $v): mixed
     {

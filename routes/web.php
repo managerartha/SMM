@@ -1,6 +1,11 @@
 <?php
 
 use App\Http\Controllers\ActivityLogController;
+use App\Http\Controllers\AuditController;
+use App\Http\Controllers\EvidencePackageController;
+use App\Http\Controllers\InnovationController;
+use App\Http\Controllers\ReportController;
+use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\AttachmentController;
 use App\Http\Controllers\ClassController;
 use App\Http\Controllers\FacilityController;
@@ -206,6 +211,62 @@ Route::middleware('auth')->group(function () {
         Route::put('/{supplier}', 'update')->name('update');
         Route::post('/{supplier}/evaluasi', 'evaluate')->name('evaluate');
     });
+
+    // Tahap 4 – Audit internal
+    Route::prefix('audit')->name('audits.')->controller(AuditController::class)->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::post('/program', 'storeProgram')->name('programs.store');
+        Route::get('/program/{program}', 'showProgram')->name('programs.show');
+        Route::put('/program/{program}', 'updateProgram')->name('programs.update');
+        Route::post('/program/{program}/ajukan', 'submitProgram')->name('programs.submit');
+        Route::post('/program/{program}/sahkan', 'decideProgram')->name('programs.decide');
+        Route::post('/program/{program}/jadwal', 'schedule')->name('schedule');
+        Route::get('/{audit}', 'show')->name('show');
+        Route::post('/{audit}/checklist', 'checklist')->name('checklist');
+        Route::post('/{audit}/temuan', 'finding')->name('finding');
+        Route::post('/{audit}/laporan', 'report')->name('report');
+        Route::post('/{audit}/sahkan', 'decide')->name('decide');
+        Route::post('/{audit}/batal', 'cancel')->name('cancel');
+    });
+
+    Route::prefix('tinjauan-manajemen')->name('reviews.')->controller(ReviewController::class)->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::post('/', 'store')->name('store');
+        Route::get('/{review}', 'show')->name('show');
+        Route::put('/{review}', 'update')->name('update');
+        Route::post('/{review}/isi-otomatis', 'refresh')->name('refresh');
+        Route::post('/{review}/tindak-lanjut', 'addAction')->name('actions.store');
+        Route::post('/{review}/tindak-lanjut/{action}/selesai', 'completeAction')->name('actions.complete');
+        Route::post('/{review}/ajukan', 'submit')->name('submit');
+        Route::post('/{review}/sahkan', 'decide')->name('decide');
+    });
+
+    Route::prefix('inovasi')->name('innovations.')->controller(InnovationController::class)->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('/ekspor', 'export')->name('export');
+        Route::get('/baru', 'create')->name('create');
+        Route::post('/', 'store')->name('store');
+        Route::get('/{innovation}', 'show')->name('show');
+        Route::get('/{innovation}/edit', 'edit')->name('edit');
+        Route::put('/{innovation}', 'update')->name('update');
+        Route::post('/{innovation}/putuskan', 'decide')->name('decide');
+        Route::post('/{innovation}/mulai', 'start')->name('start');
+        Route::post('/{innovation}/bukti', 'evidence')->name('evidence');
+        Route::post('/{innovation}/selesai', 'complete')->name('complete');
+    });
+
+    Route::prefix('laporan-kinerja')->name('reports.')->controller(ReportController::class)->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::post('/', 'store')->name('store');
+        Route::get('/{report}', 'show')->name('show');
+        Route::post('/{report}/perbarui', 'regenerate')->name('regenerate');
+        Route::post('/{report}/analisis', 'analysis')->name('analysis');
+        Route::post('/{report}/ajukan', 'submit')->name('submit');
+        Route::post('/{report}/sahkan', 'decide')->name('decide');
+    });
+
+    Route::get('/paket-bukti', [EvidencePackageController::class, 'index'])->name('evidence.index');
+    Route::post('/paket-bukti', [EvidencePackageController::class, 'store'])->name('evidence.store');
 
     Route::get('/lampiran/{uuid}', AttachmentController::class)->whereUuid('uuid')->name('attachments.download');
 

@@ -72,6 +72,7 @@ return [
         'survey.negative_threshold' => 2.5,
         'reminder.personnel_days' => [90, 60, 30],
         'reminder.facility_days' => 14,
+        'numbering.management_review' => 'TM/{tahun}/{urut:2}',
     ],
 
     'facility_categories' => [
@@ -140,6 +141,20 @@ return [
         'kpi.isi' => 'Mengisi realisasi KPI divisinya',
         'pemasok.lihat' => 'Melihat data pemasok',
         'pemasok.kelola' => 'Mengelola & mengevaluasi pemasok',
+        // Tahap 4
+        'mutu.sahkan' => 'Mengesahkan program audit, laporan audit & kinerja, notulen TM, inovasi (sesuai matriks)',
+        'audit.lihat' => 'Melihat program & laporan audit internal',
+        'audit.kelola' => 'Menyusun program audit & menjadwalkan audit',
+        'audit.laksana' => 'Melaksanakan audit (checklist & temuan) bila ditunjuk sebagai auditor',
+        'tinjauan.lihat' => 'Melihat tinjauan manajemen',
+        'tinjauan.kelola' => 'Menyusun notulen tinjauan manajemen',
+        'inovasi.lihat' => 'Melihat program inovasi mutu',
+        'inovasi.usul' => 'Mengusulkan program inovasi',
+        'inovasi.kelola' => 'Mengelola program inovasi',
+        'laporan.lihat' => 'Melihat laporan kinerja layanan',
+        'laporan.kelola' => 'Menyusun laporan kinerja layanan',
+        'paket.buat' => 'Membuat Paket Bukti',
+        'paket.unduh' => 'Mengunduh Paket Bukti',
     ],
 
     'role_permissions' => [
@@ -150,6 +165,7 @@ return [
             'log.lihat', 'akun.2fa',
             'keluhan.catat', 'keluhan.lihat-semua', 'ncr.lihat-semua', 'ncr.catat', 'ncr.tutup', 'risiko.lihat',
             'kelas.lihat', 'catatan.lihat-semua', 'personel.lihat', 'sarana.lihat', 'survei.lihat', 'kpi.lihat', 'pemasok.lihat',
+            'mutu.sahkan', 'audit.lihat', 'tinjauan.lihat', 'tinjauan.kelola', 'inovasi.lihat', 'inovasi.usul', 'laporan.lihat', 'paket.unduh',
         ],
         'mr' => [
             'dashboard.lihat', 'dokumen.lihat', 'dokumen.lihat-semua', 'dokumen.kelola', 'dokumen.review',
@@ -159,6 +175,8 @@ return [
             'ncr.verifikasi', 'ncr.tutup', 'risiko.lihat', 'risiko.kelola',
             'kelas.lihat', 'lms.impor', 'catatan.lihat-semua', 'catatan.catat', 'personel.lihat', 'personel.kelola',
             'sarana.lihat', 'sarana.kelola', 'survei.lihat', 'kpi.lihat', 'kpi.kelola', 'kpi.isi', 'pemasok.lihat', 'pemasok.kelola',
+            'mutu.sahkan', 'audit.lihat', 'audit.kelola', 'audit.laksana', 'tinjauan.lihat', 'tinjauan.kelola', 'inovasi.lihat',
+            'inovasi.usul', 'inovasi.kelola', 'laporan.lihat', 'laporan.kelola', 'paket.buat', 'paket.unduh',
         ],
         'kadiv' => [
             'dashboard.lihat', 'dokumen.lihat', 'dokumen.lihat-semua', 'dokumen.kelola-divisi', 'dokumen.review',
@@ -167,14 +185,16 @@ return [
             'risiko.lihat', 'risiko.kelola-divisi',
             'kelas.lihat', 'catatan.lihat-semua', 'catatan.catat', 'personel.lihat', 'sarana.lihat', 'sarana.kelola',
             'survei.lihat', 'kpi.lihat', 'kpi.isi', 'pemasok.lihat',
+            'audit.lihat', 'audit.laksana', 'inovasi.lihat', 'inovasi.usul', 'laporan.lihat',
         ],
-        'staf' => ['dashboard.lihat', 'dokumen.lihat', 'keluhan.catat', 'kelas.lihat', 'catatan.catat', 'sarana.lihat'],
-        'trainer' => ['dashboard.lihat', 'dokumen.lihat', 'keluhan.catat', 'kelas.lihat', 'catatan.catat'],
+        'staf' => ['dashboard.lihat', 'dokumen.lihat', 'keluhan.catat', 'kelas.lihat', 'catatan.catat', 'sarana.lihat', 'inovasi.lihat', 'inovasi.usul'],
+        'trainer' => ['dashboard.lihat', 'dokumen.lihat', 'keluhan.catat', 'kelas.lihat', 'catatan.catat', 'inovasi.lihat', 'inovasi.usul'],
         'auditor' => [
             'dashboard.lihat', 'dokumen.lihat', 'dokumen.lihat-semua', 'dokumen.unduh-kedaluwarsa',
             'legalitas.lihat', 'log.lihat',
             'keluhan.lihat-semua', 'ncr.lihat-semua', 'risiko.lihat',
             'kelas.lihat', 'catatan.lihat-semua', 'personel.lihat', 'sarana.lihat', 'survei.lihat', 'kpi.lihat', 'pemasok.lihat',
+            'audit.lihat', 'audit.laksana', 'tinjauan.lihat', 'inovasi.lihat', 'laporan.lihat', 'paket.unduh',
         ],
     ],
 
@@ -247,5 +267,6 @@ return [
         ['audit_report_process', 'Laporan audit per proses', 'gm', 'approve', 4],
         ['management_review_minutes', 'Notulen Tinjauan Manajemen', 'direktur', 'approve', 4],
         ['innovation_no_budget', 'Program inovasi tanpa anggaran', 'gm', 'approve', 4],
+        ['innovation_budget', 'Program inovasi dengan anggaran', 'direktur', 'approve', 4],
     ],
 ];

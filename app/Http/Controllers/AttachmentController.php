@@ -31,6 +31,16 @@ class AttachmentController extends Controller
         } elseif ($owner instanceof \App\Models\Facility || $owner instanceof \App\Models\FacilityLog) {
             abort_unless($user->can('sarana.lihat'), 403);
             $root = $owner instanceof \App\Models\Facility ? $owner : $owner->facility;
+        } elseif ($perm = match (true) {
+            $owner instanceof \App\Models\AuditProgram, $owner instanceof \App\Models\Audit => 'audit.lihat',
+            $owner instanceof \App\Models\ManagementReview => 'tinjauan.lihat',
+            $owner instanceof \App\Models\Innovation => 'inovasi.lihat',
+            $owner instanceof \App\Models\PerformanceReport => 'laporan.lihat',
+            $owner instanceof \App\Models\EvidencePackage => 'paket.unduh',
+            default => null,
+        }) {
+            abort_unless($user->can($perm) || ($owner instanceof \App\Models\Audit && $owner->auditor_id === $user->id), 403);
+            $root = $owner;
         } elseif ($owner instanceof \App\Models\Supplier) {
             abort_unless($user->can('pemasok.lihat'), 403);
             $root = $owner;
@@ -40,7 +50,7 @@ class AttachmentController extends Controller
         }
 
         $tmp = $files->toTemp($file);
-        $log->log('unduh', "Mengunduh lampiran {$file->original_name} ({$root->number})", $root, ['file' => $file->uuid]);
+        $log->log('unduh', "Mengunduh {$file->original_name}", $root, ['file' => $file->uuid]);
 
         return response()->download($tmp, $file->original_name, ['Content-Type' => $file->mime, 'X-Content-Type-Options' => 'nosniff', 'Cache-Control' => 'private, no-store'])->deleteFileAfterSend();
     }
