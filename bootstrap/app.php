@@ -14,7 +14,7 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        $middleware->web(append: [EnsureUserIsActive::class, SecurityHeaders::class]);
+        $middleware->web(append: [EnsureUserIsActive::class, SecurityHeaders::class, \App\Http\Middleware\RequireSystemUpdate::class]);
         $middleware->alias(['permission' => PermissionMiddleware::class]);
         $middleware->replace(\Illuminate\Http\Middleware\TrustProxies::class, \App\Http\Middleware\TrustConfiguredProxies::class);
         $middleware->redirectGuestsTo(fn () => route('login'));

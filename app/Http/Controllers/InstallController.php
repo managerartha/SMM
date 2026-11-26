@@ -138,6 +138,7 @@ class InstallController extends Controller
                 return $gm;
             });
             file_put_contents(storage_path('app/installed.lock'), now()->toIso8601String());
+            \App\Http\Middleware\RequireSystemUpdate::markInstalled();
             $log->log('sistem', 'Instalasi SMM selesai; akun GM pertama dibuat', $gm, [], $gm);
         } catch (Throwable $e) {
             report($e);
