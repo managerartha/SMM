@@ -62,3 +62,36 @@ Contoh `/kelas`: `{"data":[{"kode_batch":"AK3U-2027-01","nama_pelatihan":"Ahli K
 
 Di LMS, endpoint ini cukup menghitung dari tabel `batch`, `pengguna` (role peserta), `absensi`, dan `nilai` lalu mengembalikan
 **angka rekap saja**. Token disimpan di `.env` kedua aplikasi; jangan dikirim lewat URL.
+
+## 4. Status: API LMS sudah aktif (Nov 2026)
+
+LMS Artha Safety sudah menyediakan ketiga endpoint (lihat `docs/API-SMM.md` di repo LMS):
+
+| Endpoint | Masuk ke SMM |
+|---|---|
+| `GET /api/smm/kelas` | Pelaksanaan → Kelas (LMS). `trainer` berupa daftar → digabung dengan koma |
+| `GET /api/smm/survei` | Rekap Survei (sekali per `id_respons`) |
+| `GET /api/smm/keluhan` | Keluhan & Feedback: jenis *keluhan*, saluran *LMS*, sekali per nomor tiket (`id_keluhan`) |
+
+**Keluhan dari LMS** otomatis:
+- dinomori seperti keluhan lain;
+- diberi batas tanggapan (pengaturan `complaint.response_days`, bawaan 3 hari);
+- dinotifikasikan ke pemegang izin `keluhan.kelola`;
+- tercatat "dicatat oleh Sistem (dari LMS)".
+
+Kategori LMS dipetakan ke SMM: fasilitas → Sarana, dokumen → Sertifikat, sedangkan materi, trainer, pelayanan, jadwal, dan lainnya tetap sama.
+**Kontak pelapor tidak disalin.** Bila perlu menghubungi pelapor, tanyakan nomor tiketnya ke Admin LMS.
+
+**Jadwal tarik:**
+- tiap jam, data 14 hari terakhir;
+- tiap hari pukul 05.00, data 120 hari terakhir (agar angka lulus/nilai yang diisi belakangan ikut diperbarui).
+
+Tombol **Sinkron sekarang** ada di Kelas → Impor dari LMS.
+
+**Catatan `hadir`:** LMS mengirim jumlah peserta yang hadir **minimal 1 sesi**. Bila LMS kelak menambahkan kolom `hadir_penuh`, SMM otomatis memakainya untuk KPI kehadiran penuh.
+
+**Pengaturan di `.env` SMM:**
+```
+SMM_LMS_API_URL=https://lms.arthasafetyindonesia.com/api/smm
+SMM_LMS_API_TOKEN=<sama persis dengan SMM_API_TOKEN di public_html/app/.env LMS>
+```

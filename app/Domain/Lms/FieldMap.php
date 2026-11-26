@@ -20,7 +20,7 @@ class FieldMap
         'end_date' => ['tgl_selesai', 'tanggal_selesai', 'selesai'],
         'trainers' => ['trainer', 'pemateri', 'instruktur', 'narasumber'],
         'participants' => ['jumlah_peserta', 'peserta'],
-        'attended' => ['hadir', 'jumlah_hadir', 'hadir_penuh'],
+        'attended' => ['hadir_penuh', 'hadir', 'jumlah_hadir'],
         'passed' => ['lulus', 'jumlah_lulus'],
         'average_score' => ['rata_nilai', 'nilai_rata_rata', 'rata_rata', 'rata_rata_nilai'],
         'lms_status' => ['status', 'status_kelas'],
@@ -36,6 +36,14 @@ class FieldMap
         'external_id' => ['id_respons', 'id', 'external_id'],
     ];
 
+    public const COMPLAINT_FIELDS = [
+        'external_id' => ['id_keluhan', 'nomor_tiket', 'id', 'external_id'],
+        'class_code' => ['kode_kelas', 'kode_batch', 'class_code'],
+        'received_at' => ['tanggal', 'tgl', 'waktu'],
+        'category' => ['kategori', 'category'],
+        'description' => ['uraian', 'isi', 'keluhan', 'deskripsi'],
+    ];
+
     /** Kolom data pribadi yang sengaja DIABAIKAN (tidak pernah disimpan SMM). */
     public const IGNORED_PERSONAL = ['nama', 'nama_peserta', 'email', 'no_hp', 'hp', 'telepon', 'nik', 'alamat', 'tgl_lahir', 'tempat_lahir'];
 
@@ -49,6 +57,9 @@ class FieldMap
     {
         $byKey = [];
         foreach ($raw as $k => $v) {
+            if (is_array($v)) { // mis. daftar trainer dari API LMS
+                $v = implode(', ', array_filter(array_map(fn ($x) => is_scalar($x) ? trim((string) $x) : '', $v), fn ($x) => $x !== ''));
+            }
             $byKey[self::key((string) $k)] = $v;
         }
         $out = [];

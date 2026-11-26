@@ -149,6 +149,45 @@ class ComplaintService
         });
     }
 
+    /**
+     * Keluhan dari formulir LMS (ditarik otomatis, dicatat oleh "sistem").
+     * Kontak pelapor tetap di LMS; yang disimpan hanya nomor tiket, kelas, kategori, dan uraian (sudah disamarkan LMS).
+     */
+    public function importFromLms(array $d): Complaint
+    {
+        return DB::transaction(function () use ($d) {
+            $received = Carbon::parse($d['received_at']);
+            $category = self::LMS_CATEGORIES[$d['category'] ?? ''] ?? 'lainnya';
+            $c = Complaint::create([
+                'number' => $this->numbers->next('complaint', ['tahun' => $received->format('Y')]),
+                'type' => 'keluhan', 'source' => 'peserta', 'channel' => 'lms',
+                'received_at' => $received->toDateString(),
+                'class_code' => $d['class_code'] ?? null,
+                'external_id' => $d['external_id'],
+                'category' => $category,
+                'subject' => 'Keluhan dari LMS – '.Complaint::CATEGORIES[$category].(! empty($d['class_code']) ? ' ('.$d['class_code'].')' : ''),
+                'description' => trim($d['description'])."\n\nNomor tiket LMS: ".substr($d['external_id'], 4).'. Kontak pelapor ada di LMS (minta ke Admin LMS bila perlu menghubungi).',
+                'severity' => 'sedang',
+                'response_due_date' => $received->copy()->addDays((int) Settings::get('complaint.response_days', 3))->toDateString(),
+                'status' => 'baru',
+                'evidence_category_id' => 11,
+                'created_by' => null,
+            ]);
+            $this->log->log('buat', "Keluhan {$c->number} masuk dari LMS (tiket ".substr($c->external_id, 4).')', $c);
+            DB::afterCommit(fn () => $this->notifier->send($this->handlers($c), new SmmNotification(
+                "Keluhan baru dari LMS: {$c->number}",
+                ["Kategori: ".Complaint::CATEGORIES[$c->category].'.', 'Batas tanggapan: '.$c->response_due_date->format('d-m-Y').'.'],
+                'Buka', route('complaints.show', $c), 'warning'
+            )));
+
+            return $c;
+        });
+    }
+
+    /** Kategori keluhan di LMS → kategori SMM */
+    public const LMS_CATEGORIES = ['materi' => 'materi', 'trainer' => 'trainer', 'fasilitas' => 'sarana', 'pelayanan' => 'pelayanan',
+        'jadwal' => 'jadwal', 'dokumen' => 'sertifikat', 'lainnya' => 'lainnya'];
+
     /** @param UploadedFile[] $attachments */
     private function attach(Complaint $c, array $attachments, User $user): void
     {

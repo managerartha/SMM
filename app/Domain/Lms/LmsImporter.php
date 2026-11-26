@@ -3,6 +3,8 @@
 namespace App\Domain\Lms;
 
 use App\Domain\Activity\ActivityLogger;
+use App\Domain\Complaints\ComplaintService;
+use App\Models\Complaint;
 use App\Models\LmsImport;
 use App\Models\SurveyResponse;
 use App\Models\TrainingClass;
@@ -129,6 +131,44 @@ class LmsImporter
         }
 
         return $this->finish('survei', $sourceType, $source, $stats, $errors, $user, $import);
+    }
+
+    /** Keluhan dari formulir LMS → Keluhan SMM (sekali per nomor tiket). */
+    public function importComplaints(LmsSource $source, ?User $user, string $sourceType = 'api'): LmsImport
+    {
+        $stats = ['created' => 0, 'updated' => 0, 'skipped' => 0];
+        $errors = [];
+        $import = LmsImport::create(['kind' => 'keluhan', 'source' => $sourceType, 'file_name' => $source->label(), 'imported_by' => $user?->id]);
+        $service = app(ComplaintService::class);
+
+        foreach ($source->complaints() as ['row' => $row, 'data' => $d]) {
+            try {
+                $ticket = trim((string) ($d['external_id'] ?? ''));
+                $text = trim((string) ($d['description'] ?? ''));
+                if ($ticket === '' || $text === '') {
+                    throw new \InvalidArgumentException('nomor tiket & uraian wajib');
+                }
+                $externalId = 'lms:'.Str::limit($ticket, 90, '');
+                if (Complaint::where('external_id', $externalId)->exists()) {
+                    $stats['skipped']++;
+
+                    continue; // sudah pernah ditarik
+                }
+                $service->importFromLms([
+                    'external_id' => $externalId,
+                    'received_at' => isset($d['received_at']) ? FieldMap::date($d['received_at']) : now()->toDateString(),
+                    'class_code' => Str::limit(trim((string) ($d['class_code'] ?? '')), 100, '') ?: null,
+                    'category' => FieldMap::key((string) ($d['category'] ?? '')),
+                    'description' => Str::limit($text, 5000, ''),
+                ]);
+                $stats['created']++;
+            } catch (Throwable $e) {
+                $stats['skipped']++;
+                $errors[] = "Baris {$row}: ".$e->getMessage();
+            }
+        }
+
+        return $this->finish('keluhan', $sourceType, $source, $stats, $errors, $user, $import);
     }
 
     private function finish(string $kind, string $sourceType, LmsSource $source, array $stats, array $errors, ?User $user, ?LmsImport $import = null): LmsImport

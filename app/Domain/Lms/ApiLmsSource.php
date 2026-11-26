@@ -40,6 +40,11 @@ class ApiLmsSource implements LmsSource
         return $this->fetch('survei', FieldMap::SURVEY_FIELDS);
     }
 
+    public function complaints(): iterable
+    {
+        return $this->fetch('keluhan', FieldMap::COMPLAINT_FIELDS);
+    }
+
     private function fetch(string $path, array $fields): \Generator
     {
         $res = Http::withToken($this->token)->acceptJson()->timeout(60)

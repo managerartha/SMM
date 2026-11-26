@@ -28,7 +28,7 @@
                 <div><dt class="text-slate-500">Kategori / divisi</dt><dd>{{ Complaint::CATEGORIES[$c->category] ?? '–' }} · {{ $c->division?->code ?? '–' }}</dd></div>
                 <div><dt class="text-slate-500">Penanggung jawab</dt><dd>{{ $c->pic?->name ?? 'Belum ditugaskan' }}</dd></div>
                 @if ($c->response_due_date)<div><dt class="text-slate-500">Batas tanggapan</dt><dd class="{{ $c->isOverdue() ? 'font-semibold text-red-600' : '' }}">{{ Format::date($c->response_due_date) }}</dd></div>@endif
-                <div><dt class="text-slate-500">Dicatat oleh</dt><dd>{{ $c->creator->name }}, {{ Format::dateTime($c->created_at) }}</dd></div>
+                <div><dt class="text-slate-500">Dicatat oleh</dt><dd>{{ $c->creator?->name ?? 'Sistem (dari LMS)' }}, {{ Format::dateTime($c->created_at) }}</dd></div>
                 @if ($c->ncr)<div><dt class="text-slate-500">NCR terkait</dt><dd><a class="link" href="{{ route('ncrs.show', $c->ncr) }}">{{ $c->ncr->number }}</a> <x-badge :color="$c->ncr->statusColor()">{{ $c->ncr->statusLabel() }}</x-badge></dd></div>@endif
             </dl>
         </section>

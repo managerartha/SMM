@@ -26,6 +26,11 @@ class CsvLmsSource implements LmsSource
         return $this->rows(FieldMap::SURVEY_FIELDS);
     }
 
+    public function complaints(): iterable
+    {
+        return $this->rows(FieldMap::COMPLAINT_FIELDS);
+    }
+
     private function rows(array $fields): \Generator
     {
         $ext = strtolower(pathinfo($this->originalName, PATHINFO_EXTENSION));

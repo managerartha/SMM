@@ -17,4 +17,7 @@ interface LmsSource
 
     /** @return iterable<int, array{row:int, data:array}> baris respons survei */
     public function surveys(): iterable;
+
+    /** @return iterable<int, array{row:int, data:array}> keluhan (tanpa data pribadi pelapor) */
+    public function complaints(): iterable;
 }

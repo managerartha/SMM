@@ -19,4 +19,6 @@ Schedule::command('smm:cleanup-tmp')->hourly();
 Schedule::command('queue:prune-failed --hours=720')->weekly();
 Schedule::command('smm:verify-log')->weeklyOn(1, '06:00');
 Schedule::command('smm:kpi-calc')->dailyAt('05:30');
-Schedule::command('smm:lms-sync')->dailyAt('05:00')->withoutOverlapping(60);
+// Tiap jam (ringan: 3 permintaan ke API LMS) agar keluhan dari LMS cepat masuk & batas tanggapan terjaga.
+Schedule::command('smm:lms-sync --days=14')->hourlyAt(17)->withoutOverlapping(30);
+Schedule::command('smm:lms-sync --days=120')->dailyAt('05:00')->withoutOverlapping(60);

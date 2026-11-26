@@ -86,11 +86,12 @@ class ClassController extends Controller
             $since = now()->subDays(90)->toDateString();
             $a = $importer->importClasses(ApiLmsSource::fromConfig($since), $request->user(), 'api');
             $b = $importer->importSurveys(ApiLmsSource::fromConfig($since), $request->user(), 'api');
+            $c = $importer->importComplaints(ApiLmsSource::fromConfig($since), $request->user(), 'api');
         } catch (\Throwable $e) {
             return back()->with('error', 'Sinkron API gagal: '.$e->getMessage());
         }
 
-        return back()->with('status', "Sinkron API: kelas {$a->created_count} baru/{$a->updated_count} diperbarui; survei {$b->created_count} baru.");
+        return back()->with('status', "Sinkron API: kelas {$a->created_count} baru/{$a->updated_count} diperbarui; survei {$b->created_count} baru; keluhan {$c->created_count} baru.");
     }
 
     /** Template impor (.xlsx) dengan judul kolom yang dikenali. */

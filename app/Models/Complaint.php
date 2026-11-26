@@ -21,7 +21,7 @@ class Complaint extends Model
     protected $fillable = [
         'number', 'type', 'source', 'channel', 'received_at', 'reporter_name', 'reporter_contact', 'reporter_org', 'class_code',
         'category', 'division_id', 'subject', 'description', 'severity', 'pic_id', 'response_due_date', 'status', 'response',
-        'responded_at', 'resolution', 'closed_at', 'closed_by', 'ncr_id', 'evidence_category_id', 'created_by',
+        'responded_at', 'resolution', 'closed_at', 'closed_by', 'ncr_id', 'evidence_category_id', 'created_by', 'external_id',
     ];
 
     protected $casts = ['received_at' => 'date', 'response_due_date' => 'date', 'responded_at' => 'datetime', 'closed_at' => 'datetime'];

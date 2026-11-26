@@ -20,10 +20,10 @@
         <section class="card card-body space-y-3 text-sm">
             <h2 class="font-semibold">Sinkron API LMS</h2>
             @if ($apiConfigured)
-                <p>API LMS terkonfigurasi. Sinkron otomatis setiap hari pukul 05.00.</p>
+                <p>API LMS terkonfigurasi. Kelas, survei, dan <b>keluhan</b> ditarik otomatis setiap jam (keluhan langsung masuk ke menu Keluhan &amp; Feedback dengan batas tanggapan).</p>
                 <form method="post" action="{{ route('classes.sync') }}">@csrf<button class="btn-secondary">Sinkron sekarang (90 hari terakhir)</button></form>
             @else
-                <p class="text-slate-600">Belum aktif. Setelah LMS menyediakan API baca-saja, isi <code>SMM_LMS_API_URL</code> dan <code>SMM_LMS_API_TOKEN</code> di <code>.env</code>. Kontrak API: <em>docs/LMS_ADAPTER.md</em>.</p>
+                <p class="text-slate-600">Belum aktif. Setelah LMS menyediakan API baca-saja, isi <code>SMM_LMS_API_URL=https://lms.arthasafetyindonesia.com/api/smm</code> dan <code>SMM_LMS_API_TOKEN</code> (sama dengan <code>SMM_API_TOKEN</code> di LMS) di <code>.env</code>. Kontrak API: <em>docs/LMS_ADAPTER.md</em>.</p>
             @endif
         </section>
     </div>
