@@ -34,8 +34,11 @@ class SystemUpdateController extends Controller
             Artisan::call('db:seed', ['--class' => BaseDataSeeder::class, '--force' => true]);
             $out .= Artisan::output();
             Artisan::call('optimize:clear');
-            Artisan::call('optimize');
-            $out .= Artisan::output();
+            // Config sengaja TIDAK di-cache supaya perubahan .env (mis. kredensial Google) langsung berlaku.
+            foreach (['route:cache', 'view:cache', 'event:cache'] as $cmd) {
+                Artisan::call($cmd);
+                $out .= Artisan::output();
+            }
             $this->log->log('sistem', 'Menjalankan pembaruan sistem (migrasi + cache)', null, ['output' => mb_substr($out, 0, 3000)]);
         } catch (Throwable $e) {
             $out .= "\nGAGAL: ".$e->getMessage();
