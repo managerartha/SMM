@@ -14,7 +14,7 @@ class RemindersCommand extends Command
     public function handle(Reminders $reminders): int
     {
         $r = $reminders->run();
-        $this->info("Pengingat terkirim: {$r['external']} dokumen eksternal, {$r['review']} tinjauan dokumen.");
+        $this->info('Pengingat terkirim: '.collect($r)->map(fn ($n, $k) => "{$k}={$n}")->implode(', '));
 
         return self::SUCCESS;
     }

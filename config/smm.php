@@ -55,6 +55,11 @@ return [
         'watermark.controlled_copy' => true,
         'backup.daily_retention' => 30,
         'backup.monthly_retention' => 12,
+        'numbering.risk' => 'RP-{urut:3}',
+        'complaint.response_days' => 3,
+        'capa.reminder_days' => 3,
+        'capa.effectiveness_days' => [30, 60, 90],
+        'risk.review_months' => 12,
     ],
 
     // Peran → label tampilan.
@@ -89,6 +94,20 @@ return [
         'pengaturan.kelola' => 'Mengelola pengaturan, matriks pengesahan, peran & izin, pembaruan sistem',
         'backup.kelola' => 'Melihat & menjalankan backup, menerima email kegagalan backup',
         'akun.2fa' => 'Boleh mengaktifkan verifikasi dua langkah',
+        // Tahap 2
+        'keluhan.catat' => 'Mencatat keluhan / feedback / saran',
+        'keluhan.lihat-semua' => 'Melihat semua keluhan & feedback',
+        'keluhan.kelola' => 'Menangani keluhan semua divisi (tugaskan, tanggapi, tutup, jadikan NCR)',
+        'keluhan.kelola-divisi' => 'Menangani keluhan divisinya',
+        'ncr.lihat-semua' => 'Melihat semua NCR & CAPA',
+        'ncr.catat' => 'Membuat NCR',
+        'ncr.kelola' => 'Mengelola NCR semua divisi (akar masalah, tindakan)',
+        'ncr.kelola-divisi' => 'Mengelola NCR divisinya',
+        'ncr.verifikasi' => 'Memverifikasi pelaksanaan & efektivitas tindakan korektif',
+        'ncr.tutup' => 'Menutup NCR (sesuai matriks pengesahan)',
+        'risiko.lihat' => 'Melihat register risiko & peluang',
+        'risiko.kelola' => 'Mengelola risiko & peluang semua divisi',
+        'risiko.kelola-divisi' => 'Mengelola risiko & peluang divisinya',
     ],
 
     'role_permissions' => [
@@ -97,21 +116,27 @@ return [
             'dashboard.lihat', 'dokumen.lihat', 'dokumen.lihat-semua', 'dokumen.kelola', 'dokumen.review',
             'dokumen.sahkan', 'dokumen.unduh-kedaluwarsa', 'dokumen.unduh-sumber', 'legalitas.lihat',
             'log.lihat', 'akun.2fa',
+            'keluhan.catat', 'keluhan.lihat-semua', 'ncr.lihat-semua', 'ncr.catat', 'ncr.tutup', 'risiko.lihat',
         ],
         'mr' => [
             'dashboard.lihat', 'dokumen.lihat', 'dokumen.lihat-semua', 'dokumen.kelola', 'dokumen.review',
             'dokumen.sahkan', 'dokumen.unduh-kedaluwarsa', 'dokumen.unduh-sumber', 'dokumen.arsip',
             'legalitas.lihat', 'log.lihat', 'master.kelola', 'akun.2fa',
+            'keluhan.catat', 'keluhan.lihat-semua', 'keluhan.kelola', 'ncr.lihat-semua', 'ncr.catat', 'ncr.kelola',
+            'ncr.verifikasi', 'ncr.tutup', 'risiko.lihat', 'risiko.kelola',
         ],
         'kadiv' => [
             'dashboard.lihat', 'dokumen.lihat', 'dokumen.lihat-semua', 'dokumen.kelola-divisi', 'dokumen.review',
             'legalitas.lihat',
+            'keluhan.catat', 'keluhan.lihat-semua', 'keluhan.kelola-divisi', 'ncr.lihat-semua', 'ncr.catat', 'ncr.kelola-divisi',
+            'risiko.lihat', 'risiko.kelola-divisi',
         ],
-        'staf' => ['dashboard.lihat', 'dokumen.lihat'],
-        'trainer' => ['dashboard.lihat', 'dokumen.lihat'],
+        'staf' => ['dashboard.lihat', 'dokumen.lihat', 'keluhan.catat'],
+        'trainer' => ['dashboard.lihat', 'dokumen.lihat', 'keluhan.catat'],
         'auditor' => [
             'dashboard.lihat', 'dokumen.lihat', 'dokumen.lihat-semua', 'dokumen.unduh-kedaluwarsa',
             'legalitas.lihat', 'log.lihat',
+            'keluhan.lihat-semua', 'ncr.lihat-semua', 'risiko.lihat',
         ],
     ],
 

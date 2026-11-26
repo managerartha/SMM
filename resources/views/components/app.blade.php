@@ -16,6 +16,9 @@
         ['Dashboard', 'dashboard', 'dashboard', $u->can('dashboard.lihat')],
         ['Dokumen Terkendali', 'documents.index', 'documents.*', $u->can('viewAny', App\Models\Document::class)],
         ['Legalitas & Kontrak', 'external-documents.index', 'external-documents.*', $u->can('viewAny', App\Models\ExternalDocument::class)],
+        ['Keluhan & Feedback', 'complaints.index', 'complaints.*', $u->can('viewAny', App\Models\Complaint::class)],
+        ['NCR & CAPA', 'ncrs.index', 'ncrs.*', true],
+        ['Risiko & Peluang', 'risks.index', 'risks.*', $u->can('viewAny', App\Models\Risk::class)],
         ['Log Aktivitas', 'activity.index', 'activity.*', $u->can('log.lihat')],
     ];
     $admin = array_filter([
@@ -85,7 +88,7 @@
                     @endforeach
                 </ul>
             @endif
-            <p class="px-6 pb-6 text-[11px] text-slate-400">Tahap mendatang: NCR & CAPA, Keluhan, Risiko, Catatan Mutu, KPI, Audit, Paket Bukti.</p>
+            <p class="px-6 pb-6 text-[11px] text-slate-400">Tahap mendatang: Catatan Mutu, Personel, Sarana, Survei, KPI, Audit, Paket Bukti.</p>
         </nav>
 
         <main class="min-w-0 flex-1 px-3 py-4 sm:px-5 lg:py-6">

@@ -54,6 +54,11 @@ class AppServiceProvider extends ServiceProvider
             'document_revision' => DocumentRevision::class,
             'external_document' => ExternalDocument::class,
             'external_document_version' => ExternalDocumentVersion::class,
+            'complaint' => \App\Models\Complaint::class,
+            'ncr' => \App\Models\Ncr::class,
+            'ncr_action' => \App\Models\NcrAction::class,
+            'ncr_effectiveness_check' => \App\Models\NcrEffectivenessCheck::class,
+            'risk' => \App\Models\Risk::class,
         ]);
 
         if (str_starts_with((string) config('app.url'), 'https://')) {
@@ -62,6 +67,10 @@ class AppServiceProvider extends ServiceProvider
 
         Gate::policy(Document::class, DocumentPolicy::class);
         Gate::policy(DocumentRevision::class, DocumentPolicy::class);
+        Gate::policy(\App\Models\Complaint::class, \App\Policies\ComplaintPolicy::class);
+        Gate::policy(\App\Models\Ncr::class, \App\Policies\NcrPolicy::class);
+        Gate::policy(\App\Models\NcrAction::class, \App\Policies\NcrPolicy::class);
+        Gate::policy(\App\Models\Risk::class, \App\Policies\RiskPolicy::class);
 
         Event::listen(Login::class, [LogAuthEvents::class, 'login']);
         Event::listen(Failed::class, [LogAuthEvents::class, 'failed']);

@@ -23,7 +23,11 @@ class BaseDataSeeder extends Seeder
     {
         app(PermissionRegistrar::class)->forgetCachedPermissions();
 
+        $newPermissions = [];
         foreach (array_keys(config('smm.permissions')) as $perm) {
+            if (! Permission::where('name', $perm)->where('guard_name', 'web')->exists()) {
+                $newPermissions[] = $perm;
+            }
             Permission::findOrCreate($perm, 'web');
         }
         foreach (config('smm.role_permissions') as $roleName => $perms) {
@@ -34,6 +38,10 @@ class BaseDataSeeder extends Seeder
             } elseif ($perms === ['*']) {
                 // GM selalu memegang semua izin, termasuk izin baru dari tahap berikutnya.
                 $role->syncPermissions(array_keys(config('smm.permissions')));
+            } elseif ($newPermissions) {
+                // Izin yang baru muncul (tahap berikutnya) diberikan ke peran bawaannya,
+                // tanpa mengubah izin lama yang mungkin sudah disesuaikan GM.
+                $role->givePermissionTo(array_values(array_intersect($perms, $newPermissions)));
             }
         }
 

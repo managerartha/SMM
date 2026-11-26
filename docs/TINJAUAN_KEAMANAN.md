@@ -67,3 +67,14 @@ Yang berikut hanya bisa dilakukan setelah aplikasi terpasang di Hostinger dengan
 - Jalur PHP cron di Hostinger (`/opt/alt/php83/usr/bin/php`).
 
 Langkah ujinya ada di `docs/DEPLOY_HOSTINGER.md` Langkah 9 dan `docs/RESTORE.md`.
+
+## Tambahan Tahap 2 (NCR & CAPA, Keluhan, Risiko)
+
+- Hak akses lewat policy di server: `ComplaintPolicy`, `NcrPolicy`, `RiskPolicy` (diuji: staf hanya melihat keluhan/NCR
+  miliknya atau yang ditugaskan; auditor baca saja; kadiv hanya divisinya).
+- **Pemisahan tugas**: penanggung jawab NCR tidak bisa memverifikasi pelaksanaan/efektivitas tindakannya sendiri;
+  penutupan mengikuti Matriks Pengesahan.
+- Lampiran (keluhan, bukti tindakan & efektivitas) disimpan di Drive dan diunduh lewat `/lampiran/{uuid}` dengan cek
+  hak akses ke objek induknya; UUID acak, tanpa tautan langsung.
+- Semua aksi tercatat di log aktivitas append-only dan riwayat NCR.
+- Izin baru ditambahkan ke peran bawaan saat pembaruan tanpa menimpa penyesuaian GM (diuji).

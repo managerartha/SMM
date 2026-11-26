@@ -1,6 +1,10 @@
 <?php
 
 use App\Http\Controllers\ActivityLogController;
+use App\Http\Controllers\AttachmentController;
+use App\Http\Controllers\ComplaintController;
+use App\Http\Controllers\NcrController;
+use App\Http\Controllers\RiskController;
 use App\Http\Controllers\Admin\ApprovalRuleController;
 use App\Http\Controllers\Admin\BackupController;
 use App\Http\Controllers\Admin\DivisionController;
@@ -72,6 +76,56 @@ Route::middleware('auth')->group(function () {
         Route::post('/{externalDocument}/arsip', 'archive')->name('archive');
         Route::post('/{externalDocument}/pulihkan', 'restore')->name('restore');
     });
+
+    // Tahap 2 – Keluhan & Feedback
+    Route::prefix('keluhan')->name('complaints.')->controller(ComplaintController::class)->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('/ekspor', 'export')->name('export');
+        Route::get('/baru', 'create')->name('create');
+        Route::post('/', 'store')->name('store');
+        Route::get('/{complaint}', 'show')->name('show');
+        Route::get('/{complaint}/edit', 'edit')->name('edit');
+        Route::put('/{complaint}', 'update')->name('update');
+        Route::post('/{complaint}/tugaskan', 'assign')->name('assign');
+        Route::post('/{complaint}/tanggapi', 'respond')->name('respond');
+        Route::post('/{complaint}/batal', 'cancel')->name('cancel');
+        Route::post('/{complaint}/jadikan-ncr', 'escalate')->name('escalate');
+    });
+
+    // Tahap 2 – NCR & CAPA
+    Route::prefix('ncr')->name('ncrs.')->controller(NcrController::class)->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('/ekspor', 'export')->name('export');
+        Route::get('/baru', 'create')->name('create');
+        Route::post('/', 'store')->name('store');
+        Route::get('/{ncr}', 'show')->name('show');
+        Route::get('/{ncr}/cetak', 'print')->name('print');
+        Route::put('/{ncr}', 'update')->name('update');
+        Route::post('/{ncr}/analisis', 'analysis')->name('analysis');
+        Route::post('/{ncr}/tindakan', 'addAction')->name('actions.store');
+        Route::post('/{ncr}/mulai', 'start')->name('start');
+        Route::post('/{ncr}/tindakan/{action}/selesai', 'completeAction')->name('actions.complete');
+        Route::post('/{ncr}/verifikasi', 'verify')->name('verify');
+        Route::post('/{ncr}/efektivitas/{check}', 'effectiveness')->name('effectiveness');
+        Route::post('/{ncr}/tutup', 'close')->name('close');
+        Route::post('/{ncr}/batal', 'cancel')->name('cancel');
+    });
+
+    // Tahap 2 – Risiko & Peluang
+    Route::prefix('risiko')->name('risks.')->controller(RiskController::class)->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('/ekspor', 'export')->name('export');
+        Route::get('/baru', 'create')->name('create');
+        Route::post('/', 'store')->name('store');
+        Route::get('/{risk}', 'show')->name('show');
+        Route::get('/{risk}/edit', 'edit')->name('edit');
+        Route::put('/{risk}', 'update')->name('update');
+        Route::post('/{risk}/nilai-ulang', 'reassess')->name('reassess');
+        Route::post('/{risk}/tutup', 'close')->name('close');
+        Route::post('/{risk}/buka', 'reopen')->name('reopen');
+    });
+
+    Route::get('/lampiran/{uuid}', AttachmentController::class)->whereUuid('uuid')->name('attachments.download');
 
     Route::middleware('permission:log.lihat')->group(function () {
         Route::get('/log-aktivitas', [ActivityLogController::class, 'index'])->name('activity.index');

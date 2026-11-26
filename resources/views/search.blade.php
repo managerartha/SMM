@@ -26,6 +26,14 @@
                 </ul>
             </section>
             @endcan
+            @foreach ([['complaints', 'Keluhan & feedback', 'complaints.show', 'subject'], ['ncrs', 'NCR & CAPA', 'ncrs.show', 'title'], ['risks', 'Risiko & peluang', 'risks.show', 'title']] as [$key, $label, $route, $field])
+                @if ($results[$key]->isNotEmpty())
+                <section class="card">
+                    <h2 class="border-b px-4 py-3 text-sm font-semibold">{{ $label }} ({{ $results[$key]->count() }})</h2>
+                    <ul class="divide-y text-sm">@foreach ($results[$key] as $x)<li class="px-4 py-2.5"><a class="link font-medium" href="{{ route($route, $x) }}">{{ $x->number }}</a> – {{ $x->$field }}</li>@endforeach</ul>
+                </section>
+                @endif
+            @endforeach
             @can('pengguna.kelola')
             <section class="card">
                 <h2 class="border-b px-4 py-3 text-sm font-semibold">Pengguna ({{ $results['users']->count() }})</h2>

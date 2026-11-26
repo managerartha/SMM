@@ -6,7 +6,14 @@
         <div class="card card-body"><p class="text-xs text-slate-500">Dokumen berlaku</p><p class="mt-1 text-2xl font-semibold">{{ $stats['berlaku'] }}</p></div>
         @if (! is_null($stats['proses']))<div class="card card-body"><p class="text-xs text-slate-500">Revisi dalam proses</p><p class="mt-1 text-2xl font-semibold">{{ $stats['proses'] }}</p></div>@endif
         @if (! is_null($stats['legalitas']))<div class="card card-body"><p class="text-xs text-slate-500">Legalitas & kontrak</p><p class="mt-1 text-2xl font-semibold">{{ $stats['legalitas'] }}</p></div>@endif
-        <div class="card card-body"><p class="text-xs text-slate-500">Menunggu tindakan saya</p><p class="mt-1 text-2xl font-semibold {{ ($toReview->count() + $toApprove->count()) ? 'text-red-600' : '' }}">{{ $toReview->count() + $toApprove->count() }}</p></div>
+        @php $pending = $toReview->count() + $toApprove->count() + $myActions->count() + $toVerify->count() + $checksDue->count() + $toClose->count() + $myComplaints->count(); @endphp
+        <div class="card card-body"><p class="text-xs text-slate-500">Menunggu tindakan saya</p><p class="mt-1 text-2xl font-semibold {{ $pending ? 'text-red-600' : '' }}">{{ $pending }}</p></div>
+    </div>
+    <div class="mb-5 grid grid-cols-2 gap-3 md:grid-cols-4">
+        <a href="{{ route('ncrs.index') }}" class="card card-body hover:ring-brand-600"><p class="text-xs text-slate-500">NCR terbuka</p><p class="mt-1 text-2xl font-semibold">{{ $qms['ncr_open'] }}</p></a>
+        <a href="{{ route('ncrs.index', ['status' => 'lewat']) }}" class="card card-body hover:ring-brand-600"><p class="text-xs text-slate-500">NCR lewat target</p><p class="mt-1 text-2xl font-semibold {{ $qms['ncr_overdue'] ? 'text-red-600' : '' }}">{{ $qms['ncr_overdue'] }}</p></a>
+        @if (! is_null($qms['complaints_open']))<a href="{{ route('complaints.index', ['status' => 'terbuka']) }}" class="card card-body hover:ring-brand-600"><p class="text-xs text-slate-500">Keluhan belum selesai</p><p class="mt-1 text-2xl font-semibold">{{ $qms['complaints_open'] }}@if ($qms['complaints_overdue'])<span class="ml-1 text-sm text-red-600">({{ $qms['complaints_overdue'] }} lewat batas)</span>@endif</p></a>@endif
+        @if (! is_null($qms['risks_high']))<a href="{{ route('risks.index', ['level' => 'tinggi']) }}" class="card card-body hover:ring-brand-600"><p class="text-xs text-slate-500">Risiko level tinggi</p><p class="mt-1 text-2xl font-semibold {{ $qms['risks_high'] ? 'text-red-600' : '' }}">{{ $qms['risks_high'] }}</p></a>@endif
     </div>
 
     <div class="grid gap-5 lg:grid-cols-2">
@@ -22,7 +29,22 @@
                 @foreach ($myDrafts as $r)
                     <li class="flex items-center justify-between gap-2 px-4 py-2.5"><a class="link" href="{{ route('documents.show', $r->document) }}">{{ $r->fullLabel() }} – {{ $r->document->title }}</a><x-badge>Draf saya</x-badge></li>
                 @endforeach
-                @if ($toApprove->isEmpty() && $toReview->isEmpty() && $myDrafts->isEmpty())
+                @foreach ($toClose as $n)
+                    <li class="flex items-center justify-between gap-2 px-4 py-2.5"><a class="link" href="{{ route('ncrs.show', $n) }}">{{ $n->number }} – {{ $n->title }}</a><x-badge color="purple">Tutup NCR</x-badge></li>
+                @endforeach
+                @foreach ($toVerify as $n)
+                    <li class="flex items-center justify-between gap-2 px-4 py-2.5"><a class="link" href="{{ route('ncrs.show', $n) }}">{{ $n->number }} – {{ $n->title }}</a><x-badge color="blue">Verifikasi tindakan</x-badge></li>
+                @endforeach
+                @foreach ($checksDue as $c)
+                    <li class="flex items-center justify-between gap-2 px-4 py-2.5"><a class="link" href="{{ route('ncrs.show', $c->ncr) }}">{{ $c->ncr->number }} – efektivitas hari ke-{{ $c->day }}</a><span class="text-xs {{ $c->due_date->isPast() ? 'font-semibold text-red-600' : 'text-slate-500' }}">{{ Format::date($c->due_date) }}</span></li>
+                @endforeach
+                @foreach ($myActions as $a)
+                    <li class="flex items-center justify-between gap-2 px-4 py-2.5"><a class="link" href="{{ route('ncrs.show', $a->ncr) }}">{{ $a->ncr->number }} – {{ \Illuminate\Support\Str::limit($a->description, 60) }}</a><span class="text-xs {{ $a->isOverdue() ? 'font-semibold text-red-600' : 'text-slate-500' }}">Tindakan · {{ Format::date($a->due_date) }}</span></li>
+                @endforeach
+                @foreach ($myComplaints as $c)
+                    <li class="flex items-center justify-between gap-2 px-4 py-2.5"><a class="link" href="{{ route('complaints.show', $c) }}">{{ $c->number }} – {{ $c->subject }}</a><x-badge color="amber">Tanggapi</x-badge></li>
+                @endforeach
+                @if ($pending === 0 && $myDrafts->isEmpty())
                     <li class="px-4 py-6 text-center text-slate-500">Tidak ada yang menunggu. 👍</li>
                 @endif
             </ul>

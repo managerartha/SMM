@@ -9,7 +9,8 @@ Laravel 12 · PHP 8.3 · MySQL/MariaDB · berkas disimpan di Google Drive.
 | [docs/DEPLOY_HOSTINGER.md](docs/DEPLOY_HOSTINGER.md) | **Pemasangan di Hostinger Cloud, langkah demi langkah** |
 | [docs/GOOGLE_DRIVE.md](docs/GOOGLE_DRIVE.md) | Menghubungkan Google Drive (OAuth) |
 | [docs/RESTORE.md](docs/RESTORE.md) | Memulihkan dari backup |
-| [docs/TINJAUAN_KEAMANAN.md](docs/TINJAUAN_KEAMANAN.md) | Laporan tinjauan keamanan Tahap 1 |
+| [docs/TINJAUAN_KEAMANAN.md](docs/TINJAUAN_KEAMANAN.md) | Laporan tinjauan keamanan |
+| [docs/TAHAP2.md](docs/TAHAP2.md) | NCR & CAPA, Keluhan & Feedback, Risiko & Peluang |
 
 ## Menjalankan di komputer lokal (± 10 menit)
 
@@ -43,7 +44,10 @@ Buka http://localhost:8000. Akun contoh (kata sandi semuanya `password`):
 | trainer@contoh.test | Trainer |
 | auditor@contoh.test | Auditor (akun berlaku 3 bulan) |
 
-Data contoh: 3 dokumen (SOP dengan Rev. 00 kedaluwarsa & Rev. 01 berlaku, IK berlaku, Formulir menunggu review MR)
+Data contoh Tahap 2: 3 keluhan/feedback/saran, NCR yang sedang dipantau efektivitasnya (dari keluhan) dan NCR baru,
+serta 3 risiko/peluang.
+
+Data contoh Tahap 1: 3 dokumen (SOP dengan Rev. 00 kedaluwarsa & Rev. 01 berlaku, IK berlaku, Formulir menunggu review MR)
 dan 2 dokumen legalitas (SKP PJK3 berakhir 60 hari lagi, Akta tanpa masa berlaku).
 
 Di lokal, `SMM_DRIVE_DRIVER=local`: berkas disimpan di `storage/app/drive-local` dengan struktur folder yang sama
@@ -92,10 +96,11 @@ app/Domain/        logika bisnis per modul (tidak bergantung pada HTTP)
   Approval/        matriks pengesahan
   Backup/          backup & restore
   Notifications/   email (+ titik sambung WhatsApp), pengingat
+  Complaints/ Capa/ Risks/  Tahap 2
   Lms/             (Tahap 3) adapter LMS
 app/Policies/      semua aturan hak akses
 config/smm.php     peran, izin, master data bawaan, pola nomor
 ```
 
-Tahap 2–4 (NCR/CAPA, keluhan, risiko, catatan mutu, KPI, audit, Paket Bukti) memakai ulang tabel `files`,
+Tahap 3–4 (catatan mutu, personel, sarana, survei, KPI, audit, Paket Bukti) memakai ulang tabel `files`,
 `number_sequences`, `approval_rules`, `evidence_categories`, dan `activity_logs` tanpa membongkar yang ada.

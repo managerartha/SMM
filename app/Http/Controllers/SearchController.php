@@ -14,7 +14,7 @@ class SearchController extends Controller
     {
         $q = trim((string) $request->query('q'));
         $user = $request->user();
-        $results = ['documents' => collect(), 'external' => collect(), 'users' => collect()];
+        $results = ['documents' => collect(), 'external' => collect(), 'users' => collect(), 'complaints' => collect(), 'ncrs' => collect(), 'risks' => collect()];
 
         if (mb_strlen($q) >= 2) {
             $like = '%'.str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $q).'%';
@@ -32,6 +32,18 @@ class SearchController extends Controller
                         ->orWhereHas('versions', fn ($v) => $v->where('original_number', 'like', $like)))
                     ->when(! $user->can('legalitas.kelola'), fn ($x) => $x->notArchived())
                     ->orderBy('number')->limit(50)->get();
+            }
+            if ($user->can('viewAny', \App\Models\Complaint::class)) {
+                $results['complaints'] = \App\Models\Complaint::visibleTo($user)
+                    ->where(fn ($w) => $w->where('number', 'like', $like)->orWhere('subject', 'like', $like)->orWhere('description', 'like', $like)->orWhere('reporter_name', 'like', $like)->orWhere('reporter_org', 'like', $like)->orWhere('class_code', 'like', $like))
+                    ->orderByDesc('id')->limit(30)->get();
+            }
+            $results['ncrs'] = \App\Models\Ncr::visibleTo($user)
+                ->where(fn ($w) => $w->where('number', 'like', $like)->orWhere('title', 'like', $like)->orWhere('description', 'like', $like))
+                ->orderByDesc('id')->limit(30)->get();
+            if ($user->can('viewAny', \App\Models\Risk::class)) {
+                $results['risks'] = \App\Models\Risk::where(fn ($w) => $w->where('number', 'like', $like)->orWhere('title', 'like', $like)->orWhere('process', 'like', $like))
+                    ->orderBy('number')->limit(30)->get();
             }
             if ($user->can('pengguna.kelola')) {
                 $results['users'] = User::where(fn ($w) => $w->where('name', 'like', $like)->orWhere('email', 'like', $like))->limit(20)->get();
