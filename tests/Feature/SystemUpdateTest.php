@@ -34,6 +34,11 @@ class SystemUpdateTest extends TestCase
     public function test_versi_baru_mengarahkan_gm_ke_pembaruan_dan_pengguna_lain_melihat_pesan(): void
     {
         $gm = $this->makeUser('gm');
+        // Login tetap bisa saat pembaruan tertunda (bug yang ditemukan di simulasi server)
+        $this->get(route('login'))->assertOk();
+        $this->post(route('login'), ['email' => $gm->email, 'password' => 'password'])->assertRedirect();
+        $this->assertAuthenticatedAs($gm);
+        $this->get(route('dashboard'))->assertRedirect(route('admin.system.index'));
         $this->actingAs($gm)->get(route('dashboard'))->assertRedirect(route('admin.system.index'));
         $this->actingAs($gm)->get(route('admin.system.index'))->assertOk()->assertSee('belum dipasang');
         $this->actingAs($this->makeUser('staf', 'CS'))->get(route('dashboard'))->assertStatus(503)->assertSee('sedang diperbarui');

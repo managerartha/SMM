@@ -14,11 +14,12 @@ class RequireSystemUpdate
 {
     public function handle(Request $request, Closure $next): Response
     {
-        if (! self::pending() || $request->routeIs('admin.system.*', 'login', 'logout', 'password.*', 'two-factor.*', 'install', 'install.run')) {
+        $user = $request->user();
+        // Tamu (halaman login, lupa kata sandi, 2FA, installer) selalu dilewatkan; halaman lain memang butuh login.
+        if (! $user || ! self::pending() || $request->routeIs('admin.system.*', 'logout', 'password.*', 'two-factor.*')) {
             return $next($request);
         }
-        $user = $request->user();
-        if ($user && $user->can('pengaturan.kelola')) {
+        if ($user->can('pengaturan.kelola')) {
             return redirect()->route('admin.system.index')->with('error', 'Versi baru terdeteksi ('.self::fileVersion().'). Jalankan pembaruan sistem dulu sebelum memakai SMM.');
         }
 
