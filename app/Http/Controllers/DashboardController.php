@@ -72,12 +72,23 @@ class DashboardController extends Controller
             'risks_high' => $user->can('viewAny', Risk::class) ? Risk::where('status', 'aktif')->where('level', 'tinggi')->count() : null,
         ];
 
+        // Tahap 3
+        $kpiNow = $user->can('kpi.lihat') ? \App\Models\Kpi::with('values')->where('year', (int) now()->format('Y'))->where('is_active', true)->get() : collect();
+        $lastPeriod = now()->subMonthNoOverflow()->format('Y-m');
+        $kpiStatus = $kpiNow->map(fn ($k) => ['kpi' => $k, 'value' => $k->values->firstWhere('period', $lastPeriod)?->value ?? $k->values->firstWhere('period', now()->format('Y-m'))?->value]);
+        $ops = [
+            'classes_month' => $user->can('kelas.lihat') ? \App\Models\TrainingClass::whereBetween('start_date', [now()->startOfMonth()->toDateString(), now()->endOfMonth()->toDateString()])->count() : null,
+            'survey_avg' => $user->can('survei.lihat') ? round((float) \App\Models\SurveyResponse::where('survey_type', 'kepuasan_peserta')->whereDate('responded_at', '>=', now()->subDays(90))->avg('score'), 2) ?: null : null,
+            'personnel_expiring' => $user->can('personel.lihat') ? \App\Models\PersonnelDocument::whereNull('replaced_by_id')->whereNotNull('expires_at')->whereDate('expires_at', '<=', now()->addDays(90))->whereHas('personnel', fn ($q) => $q->where('status', 'aktif'))->count() : null,
+            'facilities_due' => $user->can('sarana.lihat') ? \App\Models\Facility::where('status', 'aktif')->where(fn ($q) => $q->whereDate('next_inspection_at', '<=', now()->addDays(14))->orWhere(fn ($c) => $c->where('needs_calibration', true)->whereDate('next_calibration_at', '<=', now()->addDays(14))))->count() : null,
+        ];
+
         $backup = $user->can('backup.kelola') ? BackupRun::orderByDesc('id')->first() : null;
         $pendingFiles = $user->can('backup.kelola') ? StoredFile::whereIn('state', [StoredFile::PENDING, StoredFile::FAILED])->count() : null;
         $driveHealth = $user->can('backup.kelola') ? Settings::get('drive.last_health') : null;
         $activity = $user->can('log.lihat') ? ActivityLog::orderByDesc('id')->limit(8)->get() : collect();
 
         return view('dashboard', compact('toReview', 'toApprove', 'myDrafts', 'reviewDue', 'external', 'stats', 'backup', 'pendingFiles', 'driveHealth', 'activity',
-            'myActions', 'toVerify', 'checksDue', 'toClose', 'myComplaints', 'qms'));
+            'myActions', 'toVerify', 'checksDue', 'toClose', 'myComplaints', 'qms', 'kpiStatus', 'lastPeriod', 'ops'));
     }
 }

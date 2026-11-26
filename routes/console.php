@@ -18,3 +18,5 @@ Schedule::command('smm:drive-health')->dailyAt('06:30');
 Schedule::command('smm:cleanup-tmp')->hourly();
 Schedule::command('queue:prune-failed --hours=720')->weekly();
 Schedule::command('smm:verify-log')->weeklyOn(1, '06:00');
+Schedule::command('smm:kpi-calc')->dailyAt('05:30');
+Schedule::command('smm:lms-sync')->dailyAt('05:00')->withoutOverlapping(60);

@@ -11,6 +11,8 @@ Laravel 12 · PHP 8.3 · MySQL/MariaDB · berkas disimpan di Google Drive.
 | [docs/RESTORE.md](docs/RESTORE.md) | Memulihkan dari backup |
 | [docs/TINJAUAN_KEAMANAN.md](docs/TINJAUAN_KEAMANAN.md) | Laporan tinjauan keamanan |
 | [docs/TAHAP2.md](docs/TAHAP2.md) | NCR & CAPA, Keluhan & Feedback, Risiko & Peluang |
+| [docs/TAHAP3.md](docs/TAHAP3.md) | Kelas & Catatan Mutu, Personel, Sarana, Survei, KPI, Pemasok |
+| [docs/LMS_ADAPTER.md](docs/LMS_ADAPTER.md) | Impor CSV/Excel & kontrak API LMS |
 
 ## Menjalankan di komputer lokal (± 10 menit)
 
@@ -43,6 +45,9 @@ Buka http://localhost:8000. Akun contoh (kata sandi semuanya `password`):
 | cs@contoh.test | Staf CS |
 | trainer@contoh.test | Trainer |
 | auditor@contoh.test | Auditor (akun berlaku 3 bulan) |
+
+Data contoh Tahap 3: 3 program, 3 kelas & 17 respons survei (diimpor lewat CSV), catatan mutu, 2 personel,
+3 sarana, 2 pemasok, 4 KPI dengan realisasi otomatis/manual.
 
 Data contoh Tahap 2: 3 keluhan/feedback/saran, NCR yang sedang dipantau efektivitasnya (dari keluhan) dan NCR baru,
 serta 3 risiko/peluang.
@@ -82,6 +87,8 @@ tanda air PDF, legalitas & pengingat, validasi berkas, log append-only, backup t
 | `php artisan smm:files-push --failed` | Ulangi pemindahan berkas yang gagal ke Drive |
 | `php artisan smm:drive-health` | Cek koneksi Drive |
 | `php artisan smm:verify-log` | Periksa keutuhan log aktivitas |
+| `php artisan smm:kpi-calc [YYYY-MM]` | Hitung realisasi KPI otomatis |
+| `php artisan smm:lms-sync` | Tarik data dari API LMS (bila dikonfigurasi) |
 | `tools/build-hostinger.sh` | Membuat `dist/smm-hostinger.zip` (diekstrak langsung ke `public_html`) |
 
 ## Struktur kode
@@ -102,5 +109,5 @@ app/Policies/      semua aturan hak akses
 config/smm.php     peran, izin, master data bawaan, pola nomor
 ```
 
-Tahap 3–4 (catatan mutu, personel, sarana, survei, KPI, audit, Paket Bukti) memakai ulang tabel `files`,
+Tahap 4 (audit internal, tinjauan manajemen, inovasi, laporan, Paket Bukti) memakai ulang tabel `files`,
 `number_sequences`, `approval_rules`, `evidence_categories`, dan `activity_logs` tanpa membongkar yang ada.

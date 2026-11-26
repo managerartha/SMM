@@ -59,6 +59,15 @@ class AppServiceProvider extends ServiceProvider
             'ncr_action' => \App\Models\NcrAction::class,
             'ncr_effectiveness_check' => \App\Models\NcrEffectivenessCheck::class,
             'risk' => \App\Models\Risk::class,
+            'quality_record' => \App\Models\QualityRecord::class,
+            'personnel' => \App\Models\Personnel::class,
+            'personnel_document' => \App\Models\PersonnelDocument::class,
+
+            'facility' => \App\Models\Facility::class,
+            'facility_log' => \App\Models\FacilityLog::class,
+            'supplier' => \App\Models\Supplier::class,
+            'lms_import' => \App\Models\LmsImport::class,
+            'kpi' => \App\Models\Kpi::class,
         ]);
 
         if (str_starts_with((string) config('app.url'), 'https://')) {

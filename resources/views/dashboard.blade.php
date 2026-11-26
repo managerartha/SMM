@@ -16,6 +16,34 @@
         @if (! is_null($qms['risks_high']))<a href="{{ route('risks.index', ['level' => 'tinggi']) }}" class="card card-body hover:ring-brand-600"><p class="text-xs text-slate-500">Risiko level tinggi</p><p class="mt-1 text-2xl font-semibold {{ $qms['risks_high'] ? 'text-red-600' : '' }}">{{ $qms['risks_high'] }}</p></a>@endif
     </div>
 
+    @php $opsCards = array_filter([
+        ['Kelas bulan ini', $ops['classes_month'], route('classes.index', ['from' => now()->startOfMonth()->toDateString(), 'to' => now()->endOfMonth()->toDateString()]), false],
+        ['Kepuasan peserta (90 hari)', $ops['survey_avg'] !== null ? $ops['survey_avg'].' / 5' : null, route('surveys.index'), false],
+        ['Berkas personel ≤ 90 hari berakhir', $ops['personnel_expiring'], route('personnel.index'), (bool) $ops['personnel_expiring']],
+        ['Sarana jatuh tempo periksa/kalibrasi', $ops['facilities_due'], route('facilities.index', ['jatuh_tempo' => 1]), (bool) $ops['facilities_due']],
+    ], fn ($c) => $c[1] !== null); @endphp
+    @if ($opsCards)
+    <div class="mb-5 grid grid-cols-2 gap-3 md:grid-cols-4">
+        @foreach ($opsCards as [$label, $val, $url, $warn])
+            <a href="{{ $url }}" class="card card-body hover:ring-brand-600"><p class="text-xs text-slate-500">{{ $label }}</p><p class="mt-1 text-2xl font-semibold {{ $warn ? 'text-amber-700' : '' }}">{{ $val }}</p></a>
+        @endforeach
+    </div>
+    @endif
+
+    @if ($kpiStatus->isNotEmpty())
+    <section class="card mb-5">
+        <h2 class="flex items-center justify-between border-b px-4 py-3 text-sm font-semibold">Sasaran mutu & KPI (realisasi terakhir) <a class="link text-xs font-normal" href="{{ route('kpis.index') }}">Lihat semua</a></h2>
+        <div class="grid gap-px bg-slate-100 sm:grid-cols-2 lg:grid-cols-3">
+            @foreach ($kpiStatus as ['kpi' => $k, 'value' => $v])
+                <a href="{{ route('kpis.show', $k) }}" class="flex items-center justify-between gap-2 bg-white px-4 py-3 text-sm hover:bg-slate-50">
+                    <span><span class="font-medium">{{ $k->name }}</span><span class="block text-xs text-slate-500">Target {{ $k->targetLabel() }}</span></span>
+                    @if ($v !== null)<x-badge :color="$k->achieved($v) ? 'green' : 'red'">{{ $v }} {{ $k->unit }}</x-badge>@else<x-badge>Belum ada</x-badge>@endif
+                </a>
+            @endforeach
+        </div>
+    </section>
+    @endif
+
     <div class="grid gap-5 lg:grid-cols-2">
         <section class="card">
             <h2 class="border-b px-4 py-3 text-sm font-semibold">Menunggu tindakan saya</h2>

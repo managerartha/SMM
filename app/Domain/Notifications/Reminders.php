@@ -4,6 +4,8 @@ namespace App\Domain\Notifications;
 
 use App\Models\Complaint;
 use App\Models\Document;
+use App\Models\Facility;
+use App\Models\PersonnelDocument;
 use App\Models\Ncr;
 use App\Models\NcrAction;
 use App\Models\NcrEffectivenessCheck;
@@ -31,6 +33,7 @@ class Reminders
         return [
             'external' => $this->external(), 'review' => $this->reviews(), 'capa' => $this->capaActions(),
             'efektivitas' => $this->effectiveness(), 'keluhan' => $this->complaints(), 'risiko' => $this->risks(),
+            'personel' => $this->personnelDocuments(), 'sarana' => $this->facilities(),
         ];
     }
 
@@ -196,6 +199,65 @@ class Reminders
                         'Buka', route('risks.show', $r), 'warning'
                     ));
                     $sent++;
+                }
+            });
+
+        return $sent;
+    }
+
+    /** Berkas personel (sertifikat/lisensi/kontrak) yang akan / sudah berakhir. */
+    public function personnelDocuments(): int
+    {
+        $thresholds = collect(Settings::get('reminder.personnel_days', [90, 60, 30]))->map(fn ($d) => (int) $d)->sort()->values();
+        $recipients = $this->notifier->usersWithPermission('personel.kelola');
+        $sent = 0;
+        PersonnelDocument::with('personnel')->whereNull('replaced_by_id')->whereNotNull('expires_at')
+            ->whereHas('personnel', fn ($q) => $q->where('status', 'aktif'))
+            ->whereDate('expires_at', '<=', now()->addDays($thresholds->max() ?? 90)->toDateString())
+            ->chunkById(200, function ($docs) use ($thresholds, $recipients, &$sent) {
+                foreach ($docs as $d) {
+                    $days = (int) now()->startOfDay()->diffInDays($d->expires_at, false);
+                    $kind = $days < 0 ? 'exp-0' : 'exp-'.$thresholds->first(fn ($t) => $days <= $t);
+                    if (! $this->claim($d, $kind, $d->expires_at->toDateString())) {
+                        continue;
+                    }
+                    $this->notifier->send($recipients, new SmmNotification(
+                        ($days < 0 ? 'Kedaluwarsa' : "Berakhir {$days} hari lagi").": {$d->title} – {$d->personnel->name}",
+                        ["Berkas {$d->title} milik {$d->personnel->name} ({$d->personnel->number}) berakhir ".Format::date($d->expires_at).'.', 'Unggah berkas pembaruannya di SMM.'],
+                        'Buka personel', route('personnel.show', $d->personnel), $days < 0 ? 'danger' : 'warning'
+                    ));
+                    $sent++;
+                }
+            });
+
+        return $sent;
+    }
+
+    /** Pemeriksaan berkala & kalibrasi sarana yang jatuh tempo. */
+    public function facilities(): int
+    {
+        $days = (int) Settings::get('reminder.facility_days', 14);
+        $limit = now()->addDays($days)->toDateString();
+        $recipients = $this->notifier->usersWithPermission('sarana.kelola');
+        $sent = 0;
+        Facility::where('status', 'aktif')->where(fn ($q) => $q->whereDate('next_inspection_at', '<=', $limit)
+            ->orWhere(fn ($c) => $c->where('needs_calibration', true)->whereDate('next_calibration_at', '<=', $limit)))
+            ->chunkById(200, function ($items) use ($limit, $recipients, &$sent) {
+                foreach ($items as $f) {
+                    foreach ([['next_inspection_at', 'inspeksi', 'Pemeriksaan berkala'], ['next_calibration_at', 'kalibrasi', 'Kalibrasi']] as [$col, $kind, $label]) {
+                        if (! $f->$col || $f->$col->toDateString() > $limit || ($kind === 'kalibrasi' && ! $f->needs_calibration)) {
+                            continue;
+                        }
+                        if (! $this->claim($f, $kind, $f->$col->toDateString())) {
+                            continue;
+                        }
+                        $this->notifier->send($recipients, new SmmNotification(
+                            "{$label} jatuh tempo: {$f->number} {$f->name}",
+                            ["{$label} {$f->name} ({$f->number}) dijadwalkan ".Format::date($f->$col).'.', 'Catat hasilnya di SMM.'],
+                            'Buka sarana', route('facilities.show', $f), 'warning'
+                        ));
+                        $sent++;
+                    }
                 }
             });
 

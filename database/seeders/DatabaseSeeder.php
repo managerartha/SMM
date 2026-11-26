@@ -12,6 +12,7 @@ class DatabaseSeeder extends Seeder
         if (! app()->isProduction()) {
             $this->call(DemoDataSeeder::class);
             $this->call(DemoPhase2Seeder::class);
+            $this->call(DemoPhase3Seeder::class);
         }
     }
 }

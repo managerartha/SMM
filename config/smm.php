@@ -29,6 +29,12 @@ return [
         'password' => env('SMM_BACKUP_PASSWORD'),
     ],
 
+    // Adapter LMS (Tahap 3). API baca-saja diaktifkan bila LMS sudah menyediakan endpoint.
+    'lms' => [
+        'api_url' => env('SMM_LMS_API_URL'),
+        'api_token' => env('SMM_LMS_API_TOKEN'),
+    ],
+
     'whatsapp' => [
         'enabled' => env('SMM_WHATSAPP_ENABLED', false),
     ],
@@ -60,6 +66,17 @@ return [
         'capa.reminder_days' => 3,
         'capa.effectiveness_days' => [30, 60, 90],
         'risk.review_months' => 12,
+        'numbering.supplier' => 'PMS-{urut:3}',
+        'numbering.kpi' => 'KPI-{urut:2}',
+        'record.retention_years' => 5,
+        'survey.negative_threshold' => 2.5,
+        'reminder.personnel_days' => [90, 60, 30],
+        'reminder.facility_days' => 14,
+    ],
+
+    'facility_categories' => [
+        'ALT' => 'Alat peraga & praktik', 'APD' => 'Alat pelindung diri', 'ELK' => 'Elektronik & IT',
+        'RUA' => 'Ruangan & bangunan', 'PRB' => 'Perabot', 'KND' => 'Kendaraan', 'LNY' => 'Lainnya',
     ],
 
     // Peran → label tampilan.
@@ -108,6 +125,21 @@ return [
         'risiko.lihat' => 'Melihat register risiko & peluang',
         'risiko.kelola' => 'Mengelola risiko & peluang semua divisi',
         'risiko.kelola-divisi' => 'Mengelola risiko & peluang divisinya',
+        // Tahap 3
+        'kelas.lihat' => 'Melihat daftar kelas (dari LMS)',
+        'lms.impor' => 'Mengimpor data kelas & survei dari LMS',
+        'catatan.lihat-semua' => 'Melihat semua catatan mutu',
+        'catatan.catat' => 'Mengunggah catatan mutu (bukti kegiatan)',
+        'personel.lihat' => 'Melihat data personel (TA/TT)',
+        'personel.kelola' => 'Mengelola data & berkas personel',
+        'sarana.lihat' => 'Melihat sarana & prasarana',
+        'sarana.kelola' => 'Mengelola sarana & prasarana',
+        'survei.lihat' => 'Melihat rekap survei',
+        'kpi.lihat' => 'Melihat sasaran mutu & KPI',
+        'kpi.kelola' => 'Mengelola sasaran mutu & KPI',
+        'kpi.isi' => 'Mengisi realisasi KPI divisinya',
+        'pemasok.lihat' => 'Melihat data pemasok',
+        'pemasok.kelola' => 'Mengelola & mengevaluasi pemasok',
     ],
 
     'role_permissions' => [
@@ -117,6 +149,7 @@ return [
             'dokumen.sahkan', 'dokumen.unduh-kedaluwarsa', 'dokumen.unduh-sumber', 'legalitas.lihat',
             'log.lihat', 'akun.2fa',
             'keluhan.catat', 'keluhan.lihat-semua', 'ncr.lihat-semua', 'ncr.catat', 'ncr.tutup', 'risiko.lihat',
+            'kelas.lihat', 'catatan.lihat-semua', 'personel.lihat', 'sarana.lihat', 'survei.lihat', 'kpi.lihat', 'pemasok.lihat',
         ],
         'mr' => [
             'dashboard.lihat', 'dokumen.lihat', 'dokumen.lihat-semua', 'dokumen.kelola', 'dokumen.review',
@@ -124,19 +157,24 @@ return [
             'legalitas.lihat', 'log.lihat', 'master.kelola', 'akun.2fa',
             'keluhan.catat', 'keluhan.lihat-semua', 'keluhan.kelola', 'ncr.lihat-semua', 'ncr.catat', 'ncr.kelola',
             'ncr.verifikasi', 'ncr.tutup', 'risiko.lihat', 'risiko.kelola',
+            'kelas.lihat', 'lms.impor', 'catatan.lihat-semua', 'catatan.catat', 'personel.lihat', 'personel.kelola',
+            'sarana.lihat', 'sarana.kelola', 'survei.lihat', 'kpi.lihat', 'kpi.kelola', 'kpi.isi', 'pemasok.lihat', 'pemasok.kelola',
         ],
         'kadiv' => [
             'dashboard.lihat', 'dokumen.lihat', 'dokumen.lihat-semua', 'dokumen.kelola-divisi', 'dokumen.review',
             'legalitas.lihat',
             'keluhan.catat', 'keluhan.lihat-semua', 'keluhan.kelola-divisi', 'ncr.lihat-semua', 'ncr.catat', 'ncr.kelola-divisi',
             'risiko.lihat', 'risiko.kelola-divisi',
+            'kelas.lihat', 'catatan.lihat-semua', 'catatan.catat', 'personel.lihat', 'sarana.lihat', 'sarana.kelola',
+            'survei.lihat', 'kpi.lihat', 'kpi.isi', 'pemasok.lihat',
         ],
-        'staf' => ['dashboard.lihat', 'dokumen.lihat', 'keluhan.catat'],
-        'trainer' => ['dashboard.lihat', 'dokumen.lihat', 'keluhan.catat'],
+        'staf' => ['dashboard.lihat', 'dokumen.lihat', 'keluhan.catat', 'kelas.lihat', 'catatan.catat', 'sarana.lihat'],
+        'trainer' => ['dashboard.lihat', 'dokumen.lihat', 'keluhan.catat', 'kelas.lihat', 'catatan.catat'],
         'auditor' => [
             'dashboard.lihat', 'dokumen.lihat', 'dokumen.lihat-semua', 'dokumen.unduh-kedaluwarsa',
             'legalitas.lihat', 'log.lihat',
             'keluhan.lihat-semua', 'ncr.lihat-semua', 'risiko.lihat',
+            'kelas.lihat', 'catatan.lihat-semua', 'personel.lihat', 'sarana.lihat', 'survei.lihat', 'kpi.lihat', 'pemasok.lihat',
         ],
     ],
 

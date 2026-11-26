@@ -14,7 +14,8 @@ class SearchController extends Controller
     {
         $q = trim((string) $request->query('q'));
         $user = $request->user();
-        $results = ['documents' => collect(), 'external' => collect(), 'users' => collect(), 'complaints' => collect(), 'ncrs' => collect(), 'risks' => collect()];
+        $results = ['documents' => collect(), 'external' => collect(), 'users' => collect(), 'complaints' => collect(), 'ncrs' => collect(), 'risks' => collect(),
+            'classes' => collect(), 'records' => collect(), 'personnel' => collect(), 'facilities' => collect(), 'suppliers' => collect()];
 
         if (mb_strlen($q) >= 2) {
             $like = '%'.str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $q).'%';
@@ -44,6 +45,21 @@ class SearchController extends Controller
             if ($user->can('viewAny', \App\Models\Risk::class)) {
                 $results['risks'] = \App\Models\Risk::where(fn ($w) => $w->where('number', 'like', $like)->orWhere('title', 'like', $like)->orWhere('process', 'like', $like))
                     ->orderBy('number')->limit(30)->get();
+            }
+            if ($user->can('kelas.lihat')) {
+                $results['classes'] = \App\Models\TrainingClass::where(fn ($w) => $w->where('class_code', 'like', $like)->orWhere('program_name', 'like', $like)->orWhere('client', 'like', $like))->orderByDesc('start_date')->limit(30)->get();
+            }
+            if ($user->can('catatan.catat') || $user->can('catatan.lihat-semua')) {
+                $results['records'] = \App\Models\QualityRecord::visibleTo($user)->where(fn ($w) => $w->where('number', 'like', $like)->orWhere('title', 'like', $like))->orderByDesc('id')->limit(30)->get();
+            }
+            if ($user->can('personel.lihat')) {
+                $results['personnel'] = \App\Models\Personnel::where(fn ($w) => $w->where('number', 'like', $like)->orWhere('name', 'like', $like)->orWhere('position', 'like', $like))->orderBy('number')->limit(30)->get();
+            }
+            if ($user->can('sarana.lihat')) {
+                $results['facilities'] = \App\Models\Facility::where(fn ($w) => $w->where('number', 'like', $like)->orWhere('name', 'like', $like)->orWhere('serial_number', 'like', $like))->orderBy('number')->limit(30)->get();
+            }
+            if ($user->can('pemasok.lihat')) {
+                $results['suppliers'] = \App\Models\Supplier::where(fn ($w) => $w->where('number', 'like', $like)->orWhere('name', 'like', $like))->orderBy('name')->limit(30)->get();
             }
             if ($user->can('pengguna.kelola')) {
                 $results['users'] = User::where(fn ($w) => $w->where('name', 'like', $like)->orWhere('email', 'like', $like))->limit(20)->get();

@@ -24,8 +24,20 @@ class AttachmentController extends Controller
             $owner instanceof NcrAction, $owner instanceof NcrEffectivenessCheck => $owner->ncr,
             default => null,
         };
-        abort_if(! $root, 404);
-        $this->authorize('view', $root);
+        $user = $request->user();
+        if ($owner instanceof \App\Models\QualityRecord) {
+            abort_unless(\App\Models\QualityRecord::whereKey($owner->id)->visibleTo($user)->exists(), 403);
+            $root = $owner;
+        } elseif ($owner instanceof \App\Models\Facility || $owner instanceof \App\Models\FacilityLog) {
+            abort_unless($user->can('sarana.lihat'), 403);
+            $root = $owner instanceof \App\Models\Facility ? $owner : $owner->facility;
+        } elseif ($owner instanceof \App\Models\Supplier) {
+            abort_unless($user->can('pemasok.lihat'), 403);
+            $root = $owner;
+        } else {
+            abort_if(! $root, 404);
+            $this->authorize('view', $root);
+        }
 
         $tmp = $files->toTemp($file);
         $log->log('unduh', "Mengunduh lampiran {$file->original_name} ({$root->number})", $root, ['file' => $file->uuid]);

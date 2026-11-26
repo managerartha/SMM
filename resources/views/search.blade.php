@@ -26,7 +26,9 @@
                 </ul>
             </section>
             @endcan
-            @foreach ([['complaints', 'Keluhan & feedback', 'complaints.show', 'subject'], ['ncrs', 'NCR & CAPA', 'ncrs.show', 'title'], ['risks', 'Risiko & peluang', 'risks.show', 'title']] as [$key, $label, $route, $field])
+            @foreach ([['complaints', 'Keluhan & feedback', 'complaints.show', 'subject'], ['ncrs', 'NCR & CAPA', 'ncrs.show', 'title'], ['risks', 'Risiko & peluang', 'risks.show', 'title'],
+                ['records', 'Catatan mutu', 'records.show', 'title'], ['personnel', 'Personel', 'personnel.show', 'name'], ['facilities', 'Sarana & prasarana', 'facilities.show', 'name'],
+                ['suppliers', 'Pemasok', 'suppliers.show', 'name']] as [$key, $label, $route, $field])
                 @if ($results[$key]->isNotEmpty())
                 <section class="card">
                     <h2 class="border-b px-4 py-3 text-sm font-semibold">{{ $label }} ({{ $results[$key]->count() }})</h2>
@@ -34,6 +36,12 @@
                 </section>
                 @endif
             @endforeach
+            @if ($results['classes']->isNotEmpty())
+            <section class="card">
+                <h2 class="border-b px-4 py-3 text-sm font-semibold">Kelas ({{ $results['classes']->count() }})</h2>
+                <ul class="divide-y text-sm">@foreach ($results['classes'] as $x)<li class="px-4 py-2.5"><a class="link font-medium" href="{{ route('classes.show', $x) }}">{{ $x->class_code }}</a> – {{ $x->program_name }}</li>@endforeach</ul>
+            </section>
+            @endif
             @can('pengguna.kelola')
             <section class="card">
                 <h2 class="border-b px-4 py-3 text-sm font-semibold">Pengguna ({{ $results['users']->count() }})</h2>

@@ -12,20 +12,38 @@
 @php
     $u = auth()->user();
     $unread = $u->unreadNotifications()->count();
-    $nav = [
-        ['Dashboard', 'dashboard', 'dashboard', $u->can('dashboard.lihat')],
-        ['Dokumen Terkendali', 'documents.index', 'documents.*', $u->can('viewAny', App\Models\Document::class)],
-        ['Legalitas & Kontrak', 'external-documents.index', 'external-documents.*', $u->can('viewAny', App\Models\ExternalDocument::class)],
-        ['Keluhan & Feedback', 'complaints.index', 'complaints.*', $u->can('viewAny', App\Models\Complaint::class)],
-        ['NCR & CAPA', 'ncrs.index', 'ncrs.*', true],
-        ['Risiko & Peluang', 'risks.index', 'risks.*', $u->can('viewAny', App\Models\Risk::class)],
-        ['Log Aktivitas', 'activity.index', 'activity.*', $u->can('log.lihat')],
+    $navGroups = [
+        null => [
+            ['Dashboard', 'dashboard', 'dashboard', $u->can('dashboard.lihat')],
+        ],
+        'Dokumen' => [
+            ['Dokumen Terkendali', 'documents.index', 'documents.*', $u->can('viewAny', App\Models\Document::class)],
+            ['Catatan Mutu', 'records.index', 'records.*', $u->can('catatan.catat') || $u->can('catatan.lihat-semua')],
+            ['Legalitas & Kontrak', 'external-documents.index', 'external-documents.*', $u->can('viewAny', App\Models\ExternalDocument::class)],
+        ],
+        'Pelaksanaan' => [
+            ['Kelas (LMS)', 'classes.index', 'classes.*', $u->can('kelas.lihat')],
+            ['Rekap Survei', 'surveys.index', 'surveys.*', $u->can('survei.lihat')],
+            ['Personel', 'personnel.index', 'personnel.*', $u->can('personel.lihat')],
+            ['Sarana & Prasarana', 'facilities.index', 'facilities.*', $u->can('sarana.lihat')],
+            ['Pemasok', 'suppliers.index', 'suppliers.*', $u->can('pemasok.lihat')],
+        ],
+        'Perbaikan' => [
+            ['Keluhan & Feedback', 'complaints.index', 'complaints.*', $u->can('viewAny', App\Models\Complaint::class)],
+            ['NCR & CAPA', 'ncrs.index', 'ncrs.*', true],
+            ['Risiko & Peluang', 'risks.index', 'risks.*', $u->can('viewAny', App\Models\Risk::class)],
+        ],
+        'Kinerja' => [
+            ['Sasaran Mutu & KPI', 'kpis.index', 'kpis.*', $u->can('kpi.lihat')],
+            ['Log Aktivitas', 'activity.index', 'activity.*', $u->can('log.lihat')],
+        ],
     ];
     $admin = array_filter([
         ['Pengguna', 'admin.users.index', 'admin.users.*', $u->can('pengguna.kelola')],
         ['Divisi', 'admin.divisions.index', 'admin.divisions.*', $u->can('master.kelola')],
         ['Jenis Dokumen', 'admin.document-types.index', 'admin.document-types.*', $u->can('master.kelola')],
         ['Kategori Eksternal', 'admin.external-categories.index', 'admin.external-categories.*', $u->can('master.kelola')],
+        ['Program Pelatihan', 'admin.programs.index', 'admin.programs.*', $u->can('master.kelola')],
         ['Matriks Pengesahan', 'admin.approval-rules.index', 'admin.approval-rules.*', $u->can('pengaturan.kelola')],
         ['Peran & Izin', 'admin.roles.index', 'admin.roles.*', $u->can('pengaturan.kelola')],
         ['Pengaturan', 'admin.settings.index', 'admin.settings.*', $u->can('pengaturan.kelola')],
@@ -73,13 +91,17 @@
         {{-- Menu samping --}}
         <div x-cloak x-show="open" class="fixed inset-0 z-20 bg-black/30 lg:hidden" @click="open = false"></div>
         <nav :class="open ? 'translate-x-0!' : ''" class="fixed inset-y-0 left-0 z-20 w-64 -translate-x-full transform overflow-y-auto bg-white pt-14 shadow-lg transition lg:static lg:translate-x-0 lg:bg-transparent lg:pt-4 lg:shadow-none">
-            <ul class="space-y-0.5 px-3 text-sm">
-                @foreach ($nav as [$label, $route, $pattern, $allowed])
-                    @if ($allowed)
-                        <li><a href="{{ route($route) }}" class="block rounded-md px-3 py-2 {{ request()->routeIs($pattern) ? 'bg-brand-100 font-semibold text-brand-800' : 'text-slate-700 hover:bg-slate-200/60' }}">{{ $label }}</a></li>
-                    @endif
-                @endforeach
-            </ul>
+            @foreach ($navGroups as $group => $items)
+                @php $items = array_filter($items, fn ($i) => $i[3]); @endphp
+                @if ($items)
+                    @if ($group)<p class="mt-4 px-6 text-xs font-semibold uppercase tracking-wide text-slate-400">{{ $group }}</p>@endif
+                    <ul class="mt-1 space-y-0.5 px-3 text-sm">
+                        @foreach ($items as [$label, $route, $pattern])
+                            <li><a href="{{ route($route) }}" class="block rounded-md px-3 py-1.5 {{ request()->routeIs($pattern) ? 'bg-brand-100 font-semibold text-brand-800' : 'text-slate-700 hover:bg-slate-200/60' }}">{{ $label }}</a></li>
+                        @endforeach
+                    </ul>
+                @endif
+            @endforeach
             @if ($admin)
                 <p class="mt-5 px-6 text-xs font-semibold uppercase tracking-wide text-slate-400">Admin</p>
                 <ul class="mt-1 space-y-0.5 px-3 pb-6 text-sm">
@@ -88,7 +110,7 @@
                     @endforeach
                 </ul>
             @endif
-            <p class="px-6 pb-6 text-[11px] text-slate-400">Tahap mendatang: Catatan Mutu, Personel, Sarana, Survei, KPI, Audit, Paket Bukti.</p>
+            <p class="px-6 pb-6 text-[11px] text-slate-400">Tahap mendatang: Audit Internal, Tinjauan Manajemen, Inovasi, Laporan & Paket Bukti.</p>
         </nav>
 
         <main class="min-w-0 flex-1 px-3 py-4 sm:px-5 lg:py-6">

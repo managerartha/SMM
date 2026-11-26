@@ -78,3 +78,14 @@ Langkah ujinya ada di `docs/DEPLOY_HOSTINGER.md` Langkah 9 dan `docs/RESTORE.md`
   hak akses ke objek induknya; UUID acak, tanpa tautan langsung.
 - Semua aksi tercatat di log aktivitas append-only dan riwayat NCR.
 - Izin baru ditambahkan ke peran bawaan saat pembaruan tanpa menimpa penyesuaian GM (diuji).
+
+## Tambahan Tahap 3 (LMS, Catatan Mutu, Personel, Sarana, Survei, KPI, Pemasok)
+
+- **Data pribadi peserta tidak disalin**: impor survei/kelas hanya menyimpan angka rekap, skor, aspek, dan komentar;
+  kolom nama/HP/email/NIK/alamat diabaikan (diuji: tidak ada kolom pribadi di tabel, nama tidak tersimpan).
+- Adapter LMS **baca-saja**; token API disimpan di `.env`, dikirim lewat header `Authorization`, bukan URL.
+- Impor dibatasi ke CSV/XLSX maks. 10 MB dan izin `lms.impor`; baris salah dilewati dan dilaporkan, tidak menggagalkan impor.
+- Berkas personel (KTP, ijazah, kontrak) hanya bisa dilihat pemegang izin `personel.lihat` dan diunduh lewat aplikasi.
+- Catatan mutu disaring per divisi; lampiran dicek hak aksesnya ke objek induk.
+- Temuan saat pengujian & sudah diperbaiki: tipe `personnel_document` belum terdaftar sehingga pengingat masa berlaku
+  berkas personel akan gagal di cron (ditemukan oleh tes, sekarang tercakup).

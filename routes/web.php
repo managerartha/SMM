@@ -2,6 +2,14 @@
 
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\AttachmentController;
+use App\Http\Controllers\ClassController;
+use App\Http\Controllers\FacilityController;
+use App\Http\Controllers\KpiController;
+use App\Http\Controllers\PersonnelController;
+use App\Http\Controllers\RecordController;
+use App\Http\Controllers\SupplierController;
+use App\Http\Controllers\SurveyController;
+use App\Http\Controllers\Admin\ProgramController;
 use App\Http\Controllers\ComplaintController;
 use App\Http\Controllers\NcrController;
 use App\Http\Controllers\RiskController;
@@ -125,6 +133,80 @@ Route::middleware('auth')->group(function () {
         Route::post('/{risk}/buka', 'reopen')->name('reopen');
     });
 
+    // Tahap 3 – Kelas (LMS) & impor
+    Route::prefix('kelas')->name('classes.')->controller(ClassController::class)->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('/ekspor', 'export')->name('export');
+        Route::get('/impor', 'importForm')->name('import');
+        Route::post('/impor', 'import')->name('import.run');
+        Route::post('/sinkron', 'sync')->name('sync');
+        Route::get('/template/{kind}', 'template')->whereIn('kind', ['kelas', 'survei'])->name('template');
+        Route::get('/{class}', 'show')->name('show');
+    });
+
+    Route::prefix('catatan-mutu')->name('records.')->controller(RecordController::class)->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('/ekspor', 'export')->name('export');
+        Route::get('/baru', 'create')->name('create');
+        Route::post('/', 'store')->name('store');
+        Route::get('/{record}', 'show')->name('show');
+        Route::post('/{record}/berkas', 'addFiles')->name('files');
+        Route::post('/{record}/arsip', 'archive')->name('archive');
+    });
+
+    Route::prefix('personel')->name('personnel.')->controller(PersonnelController::class)->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('/ekspor', 'export')->name('export');
+        Route::get('/baru', 'create')->name('create');
+        Route::post('/', 'store')->name('store');
+        Route::get('/{personnel}', 'show')->name('show');
+        Route::get('/{personnel}/edit', 'edit')->name('edit');
+        Route::put('/{personnel}', 'update')->name('update');
+        Route::post('/{personnel}/berkas', 'storeDocument')->name('documents.store');
+        Route::post('/{personnel}/berkas/{document}/verifikasi', 'verifyDocument')->name('documents.verify');
+        Route::get('/{personnel}/berkas/{document}/unduh', 'downloadDocument')->name('documents.download');
+    });
+
+    Route::prefix('sarana')->name('facilities.')->controller(FacilityController::class)->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('/ekspor', 'export')->name('export');
+        Route::get('/baru', 'create')->name('create');
+        Route::post('/', 'store')->name('store');
+        Route::get('/{facility}', 'show')->name('show');
+        Route::get('/{facility}/edit', 'edit')->name('edit');
+        Route::put('/{facility}', 'update')->name('update');
+        Route::post('/{facility}/riwayat', 'storeLog')->name('logs.store');
+    });
+
+    Route::prefix('survei')->name('surveys.')->controller(SurveyController::class)->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('/ekspor', 'export')->name('export');
+        Route::post('/{response}/jadikan-keluhan', 'toComplaint')->name('complaint');
+    });
+
+    Route::prefix('kpi')->name('kpis.')->controller(KpiController::class)->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('/ekspor', 'export')->name('export');
+        Route::get('/baru', 'create')->name('create');
+        Route::post('/', 'store')->name('store');
+        Route::post('/hitung', 'calculate')->name('calculate');
+        Route::get('/{kpi}', 'show')->name('show');
+        Route::get('/{kpi}/edit', 'edit')->name('edit');
+        Route::put('/{kpi}', 'update')->name('update');
+        Route::post('/{kpi}/realisasi', 'storeValue')->name('values.store');
+    });
+
+    Route::prefix('pemasok')->name('suppliers.')->controller(SupplierController::class)->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('/ekspor', 'export')->name('export');
+        Route::get('/baru', 'create')->name('create');
+        Route::post('/', 'store')->name('store');
+        Route::get('/{supplier}', 'show')->name('show');
+        Route::get('/{supplier}/edit', 'edit')->name('edit');
+        Route::put('/{supplier}', 'update')->name('update');
+        Route::post('/{supplier}/evaluasi', 'evaluate')->name('evaluate');
+    });
+
     Route::get('/lampiran/{uuid}', AttachmentController::class)->whereUuid('uuid')->name('attachments.download');
 
     Route::middleware('permission:log.lihat')->group(function () {
@@ -151,6 +233,9 @@ Route::middleware('auth')->group(function () {
             Route::get('/kategori-eksternal', [ExternalCategoryController::class, 'index'])->name('external-categories.index');
             Route::post('/kategori-eksternal', [ExternalCategoryController::class, 'store'])->name('external-categories.store');
             Route::put('/kategori-eksternal/{category}', [ExternalCategoryController::class, 'update'])->name('external-categories.update');
+            Route::get('/program-pelatihan', [ProgramController::class, 'index'])->name('programs.index');
+            Route::post('/program-pelatihan', [ProgramController::class, 'store'])->name('programs.store');
+            Route::put('/program-pelatihan/{program}', [ProgramController::class, 'update'])->name('programs.update');
         });
 
         Route::middleware('permission:pengaturan.kelola')->group(function () {
