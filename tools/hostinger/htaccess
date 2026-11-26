@@ -18,8 +18,8 @@ Options -Indexes -MultiViews
     RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
 
     # Aset tampilan dilayani dari folder public/
-    RewriteRule ^public/(build/.+|favicon\.ico|robots\.txt)$ - [L]
-    RewriteRule ^(build/.+|favicon\.ico|robots\.txt)$ public/$1 [L]
+    RewriteRule ^public/(build/.+|favicon\.ico|logo\.png|apple-touch-icon\.png|robots\.txt)$ - [L]
+    RewriteRule ^(build/.+|favicon\.ico|logo\.png|apple-touch-icon\.png|robots\.txt)$ public/$1 [L]
 
     # Selain itu → aplikasi
     RewriteRule ^index\.php$ - [L]

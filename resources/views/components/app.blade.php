@@ -6,6 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ isset($title) ? $title.' – ' : '' }}SMM Artha Safety</title>
+    <link rel="icon" href="{{ asset('favicon.ico') }}?v=2" sizes="any">
+    <link rel="icon" type="image/png" href="{{ asset('logo.png') }}?v=2">
+    <link rel="apple-touch-icon" href="{{ asset('apple-touch-icon.png') }}?v=2">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="h-full bg-slate-100 text-slate-800 antialiased">
@@ -60,12 +63,12 @@
 <div x-data="{ open: false }" class="min-h-full">
     {{-- Bilah atas --}}
     <header class="sticky top-0 z-30 bg-brand-800 text-white shadow">
-        <div class="mx-auto flex max-w-7xl items-center gap-3 px-3 py-2 sm:px-4">
+        <div class="mx-auto flex h-14 max-w-7xl items-center gap-3 px-3 sm:px-4">
             <button type="button" class="rounded p-1.5 hover:bg-white/10 lg:hidden" @click="open = !open" aria-label="Menu">
                 <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
             </button>
             <a href="{{ route('dashboard') }}" class="flex items-center gap-2 font-semibold">
-                <span class="grid h-8 w-8 place-items-center rounded bg-white text-xs font-bold text-brand-800">ASI</span>
+                <span class="grid h-8 w-8 place-items-center rounded bg-white p-0.5"><img src="{{ asset('logo.png') }}?v=2" alt="Logo Artha Safety Indonesia" class="h-full w-full object-contain"></span>
                 <span class="hidden sm:block">SMM Artha Safety</span>
             </a>
             <form action="{{ route('search') }}" method="get" class="ml-auto hidden flex-1 sm:block sm:max-w-md">
@@ -95,14 +98,14 @@
     <div class="mx-auto flex max-w-7xl">
         {{-- Menu samping --}}
         <div x-cloak x-show="open" class="fixed inset-0 z-20 bg-black/30 lg:hidden" @click="open = false"></div>
-        <nav :class="open ? 'translate-x-0!' : ''" class="fixed inset-y-0 left-0 z-20 w-64 -translate-x-full transform overflow-y-auto bg-white pt-14 shadow-lg transition lg:static lg:translate-x-0 lg:bg-transparent lg:pt-4 lg:shadow-none">
+        <nav :class="open ? 'translate-x-0!' : ''" class="fixed inset-y-0 left-0 z-20 w-64 -translate-x-full transform overflow-y-auto bg-white pt-14 shadow-lg transition lg:sticky lg:top-[var(--hdr,3.5rem)] lg:h-[calc(100vh-var(--hdr,3.5rem))] lg:shrink-0 lg:translate-x-0 lg:self-start lg:overscroll-contain lg:bg-transparent lg:pt-4 lg:pb-6 lg:shadow-none">
             @foreach ($navGroups as $group => $items)
                 @php $items = array_filter($items, fn ($i) => $i[3]); @endphp
                 @if ($items)
                     @if ($group)<p class="mt-4 px-6 text-xs font-semibold uppercase tracking-wide text-slate-400">{{ $group }}</p>@endif
                     <ul class="mt-1 space-y-0.5 px-3 text-sm">
                         @foreach ($items as [$label, $route, $pattern])
-                            <li><a href="{{ route($route) }}" class="block rounded-md px-3 py-1.5 {{ request()->routeIs($pattern) ? 'bg-brand-100 font-semibold text-brand-800' : 'text-slate-700 hover:bg-slate-200/60' }}">{{ $label }}</a></li>
+                            <li><a href="{{ route($route) }}" @if (request()->routeIs($pattern)) aria-current="page" @endif class="block rounded-md px-3 py-1.5 {{ request()->routeIs($pattern) ? 'bg-brand-100 font-semibold text-brand-800' : 'text-slate-700 hover:bg-slate-200/60' }}">{{ $label }}</a></li>
                         @endforeach
                     </ul>
                 @endif
@@ -111,7 +114,7 @@
                 <p class="mt-5 px-6 text-xs font-semibold uppercase tracking-wide text-slate-400">Admin</p>
                 <ul class="mt-1 space-y-0.5 px-3 pb-6 text-sm">
                     @foreach ($admin as [$label, $route, $pattern])
-                        <li><a href="{{ route($route) }}" class="block rounded-md px-3 py-1.5 {{ request()->routeIs($pattern) ? 'bg-brand-100 font-semibold text-brand-800' : 'text-slate-600 hover:bg-slate-200/60' }}">{{ $label }}</a></li>
+                        <li><a href="{{ route($route) }}" @if (request()->routeIs($pattern)) aria-current="page" @endif class="block rounded-md px-3 py-1.5 {{ request()->routeIs($pattern) ? 'bg-brand-100 font-semibold text-brand-800' : 'text-slate-600 hover:bg-slate-200/60' }}">{{ $label }}</a></li>
                     @endforeach
                 </ul>
             @endif
