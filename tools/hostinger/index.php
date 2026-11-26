@@ -26,6 +26,16 @@ if (is_file($env = $base.'/.env') && is_writable($env)) {
     }
 }
 
+// Setelah ZIP versi baru diekstrak: buang cache bootstrap lama (rute/config/event) agar tidak memakai daftar lama.
+$version = $base.'/VERSION';
+if (is_file($version)) {
+    foreach (glob($base.'/bootstrap/cache/{config,routes-v7,routes,events}.php', GLOB_BRACE) ?: [] as $cached) {
+        if (filemtime($cached) < filemtime($version)) {
+            @unlink($cached);
+        }
+    }
+}
+
 if (file_exists($maintenance = $base.'/storage/framework/maintenance.php')) {
     require $maintenance;
 }

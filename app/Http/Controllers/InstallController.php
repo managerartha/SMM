@@ -148,8 +148,7 @@ class InstallController extends Controller
 
         try {
             if (! app()->runningUnitTests()) {
-                // Config tidak di-cache supaya perubahan .env langsung berlaku.
-                Artisan::call('route:cache');
+                // Config & rute tidak di-cache supaya perubahan .env dan versi baru langsung berlaku.
                 Artisan::call('view:cache');
             }
         } catch (Throwable) {
