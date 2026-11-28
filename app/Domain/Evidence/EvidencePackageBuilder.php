@@ -121,17 +121,17 @@ class EvidencePackageBuilder
         Document::with(['currentRevision.pdfFile'])->whereNull('archived_at')->whereNotNull('current_revision_id')->where('evidence_category_id', $n)->get()
             ->each(function (Document $d) use ($n) {
                 $rev = $d->currentRevision;
-                $this->copyFile($n, $rev->pdfFile, 'Dokumen Terkendali/'.$d->number.' '.$rev->label().' - '.$d->title.'.pdf', "Salinan berlaku {$d->number} {$rev->label()}", 'SALINAN TERKENDALI - Paket Bukti - '.$d->number.' '.$rev->label().' - berlaku sejak '.Format::date($rev->effective_date));
+                $this->copyFile($n, $rev->pdfFile, 'Dokumen Terkendali/'.$this->seg($d->number.' '.$rev->label().' - '.$d->title).'.pdf', "Salinan berlaku {$d->number} {$rev->label()}", 'SALINAN TERKENDALI - Paket Bukti - '.$d->number.' '.$rev->label().' - berlaku sejak '.Format::date($rev->effective_date));
             });
         ExternalDocument::with(['currentVersion.file'])->whereNull('archived_at')->whereNotNull('current_version_id')->where('evidence_category_id', $n)->get()
             ->each(function (ExternalDocument $d) use ($n) {
                 $v = $d->currentVersion;
-                $this->copyFile($n, $v->file, 'Dokumen Eksternal/'.$d->number.' - '.$d->title.' (no. '.$v->original_number.').'.$v->file->extension, "{$d->number} versi {$v->version_no}, berlaku s.d. ".($v->expires_at ? Format::date($v->expires_at) : 'tanpa batas'));
+                $this->copyFile($n, $v->file, 'Dokumen Eksternal/'.$this->seg($d->number.' - '.$d->title.' (no. '.$v->original_number.')').'.'.$v->file->extension, "{$d->number} versi {$v->version_no}, berlaku s.d. ".($v->expires_at ? Format::date($v->expires_at) : 'tanpa batas'));
             });
         QualityRecord::with('attachments')->whereNull('archived_at')->where('evidence_category_id', $n)->whereBetween('activity_date', [$from, $to])->orderBy('activity_date')->get()
             ->each(function (QualityRecord $r) use ($n) {
                 foreach ($r->attachments as $i => $f) {
-                    $this->copyFile($n, $f, 'Catatan Mutu/'.str_replace('/', '-', $r->number).' - '.$r->title.'/'.($i + 1).'_'.$f->original_name, "Catatan {$r->number} ".Format::date($r->activity_date));
+                    $this->copyFile($n, $f, 'Catatan Mutu/'.$this->seg($r->number.' - '.$r->title).'/'.($i + 1).'_'.$this->seg($f->original_name), "Catatan {$r->number} ".Format::date($r->activity_date));
                 }
             });
     }
@@ -140,7 +140,7 @@ class EvidencePackageBuilder
     {
         Personnel::with(['activeDocuments.file'])->where('type', $type)->where('status', 'aktif')->orderBy('number')->get()->each(function (Personnel $p) use ($n) {
             foreach ($p->activeDocuments as $d) {
-                $this->copyFile($n, $d->file, "{$p->number} - {$p->name}/{$d->category} - {$d->title}.".$d->file->extension, "{$p->number} {$p->name}: {$d->title}".($d->expires_at ? ' (s.d. '.Format::date($d->expires_at).')' : ''));
+                $this->copyFile($n, $d->file, $this->seg("{$p->number} - {$p->name}").'/'.$this->seg("{$d->category} - {$d->title}").'.'.$d->file->extension, "{$p->number} {$p->name}: {$d->title}".($d->expires_at ? ' (s.d. '.Format::date($d->expires_at).')' : ''));
             }
         });
     }
@@ -152,11 +152,11 @@ class EvidencePackageBuilder
             $items->map(fn ($f) => [$f->number, $f->name, $f->category, $f->location, $f->quantity, $f->condition, Format::date($f->next_inspection_at), $f->needs_calibration ? Format::date($f->next_calibration_at) : '–']), 'Daftar inventaris sarana & prasarana');
         foreach (Facility::with(['attachments', 'logs' => fn ($q) => $q->whereBetween('performed_at', [$from, $to])->with('attachments')])->where('status', 'aktif')->get() as $f) {
             foreach ($f->attachments as $i => $a) {
-                $this->copyFile(6, $a, "{$f->number} - {$f->name}/Foto {$i}_{$a->original_name}", "Foto {$f->number}");
+                $this->copyFile(6, $a, $this->seg("{$f->number} - {$f->name}").'/'.$this->seg("Foto {$i}_{$a->original_name}"), "Foto {$f->number}");
             }
             foreach ($f->logs as $l) {
                 foreach ($l->attachments as $i => $a) {
-                    $this->copyFile(6, $a, "{$f->number} - {$f->name}/{$l->performed_at->format('Y-m-d')} {$l->type} {$i}_{$a->original_name}", "{$l->type} {$f->number} ".Format::date($l->performed_at));
+                    $this->copyFile(6, $a, $this->seg("{$f->number} - {$f->name}").'/'.$this->seg("{$l->performed_at->format('Y-m-d')} {$l->type} {$i}_{$a->original_name}"), "{$l->type} {$f->number} ".Format::date($l->performed_at));
                 }
             }
         }
@@ -199,10 +199,10 @@ class EvidencePackageBuilder
         $items = Innovation::with(['attachments', 'proposer', 'pic'])->whereIn('status', ['disetujui', 'pelaksanaan', 'selesai'])
             ->where(fn ($q) => $q->whereBetween('created_at', [$from.' 00:00:00', $to.' 23:59:59'])->orWhereBetween('completed_at', [$from.' 00:00:00', $to.' 23:59:59']))->get();
         foreach ($items as $i) {
-            $base = str_replace('/', '-', $i->number).' - '.$i->title;
+            $base = $this->seg($i->number.' - '.$i->title);
             $this->writePdf(12, $base.'/Ringkasan.pdf', 'pdf.innovation', ['i' => $i], "{$i->number} {$i->title} ({$i->status})");
             foreach ($i->attachments as $n => $f) {
-                $this->copyFile(12, $f, $base.'/Bukti '.($n + 1).'_'.$f->original_name, "Bukti {$i->number}");
+                $this->copyFile(12, $f, $base.'/Bukti '.($n + 1).'_'.$this->seg($f->original_name), "Bukti {$i->number}");
             }
         }
     }
@@ -212,10 +212,10 @@ class EvidencePackageBuilder
         AuditProgram::with('file')->where('status', 'disahkan')->whereBetween('year', [(int) substr($from, 0, 4), (int) substr($to, 0, 4)])->get()
             ->each(fn ($p) => $this->copyFile(13, $p->file, "Program Audit {$p->year}.pdf", "Program audit {$p->year} – disahkan {$p->approved_by_name}"));
         Audit::with(['file', 'attachments'])->where('status', 'selesai')->whereBetween('executed_at', [$from, $to])->get()->each(function (Audit $a) {
-            $base = 'Laporan Audit/'.str_replace('/', '-', $a->number).' - '.$a->process;
+            $base = 'Laporan Audit/'.$this->seg($a->number.' - '.$a->process);
             $this->copyFile(13, $a->file, $base.'/Laporan.pdf', "Laporan {$a->number} – disahkan {$a->approved_by_name}");
             foreach ($a->attachments as $n => $f) {
-                $this->copyFile(13, $f, $base.'/Bukti '.($n + 1).'_'.$f->original_name, "Bukti audit {$a->number}");
+                $this->copyFile(13, $f, $base.'/Bukti '.($n + 1).'_'.$this->seg($f->original_name), "Bukti audit {$a->number}");
             }
         });
     }
@@ -225,14 +225,14 @@ class EvidencePackageBuilder
         $items = Ncr::with(['division', 'pic', 'creator', 'verifier', 'complaint', 'actions.pic', 'actions.attachments', 'checks.checker', 'events', 'attachments'])
             ->where('status', '!=', Ncr::CANCELLED)->whereBetween('found_at', [$from, $to])->orderBy('id')->get();
         foreach ($items as $ncr) {
-            $base = str_replace('/', '-', $ncr->number).' - '.Str::limit($ncr->title, 60, '');
+            $base = $this->seg($ncr->number.' - '.Str::limit($ncr->title, 60, ''));
             $this->writePdf(14, $base.'/Formulir NCR-CAPA.pdf', 'ncrs.print', ['ncr' => $ncr, 'pdf' => true], "{$ncr->number} ({$ncr->statusLabel()})");
             foreach ($ncr->attachments as $n => $f) {
-                $this->copyFile(14, $f, $base.'/Temuan '.($n + 1).'_'.$f->original_name, "Bukti temuan {$ncr->number}");
+                $this->copyFile(14, $f, $base.'/Temuan '.($n + 1).'_'.$this->seg($f->original_name), "Bukti temuan {$ncr->number}");
             }
             foreach ($ncr->actions as $a) {
                 foreach ($a->attachments as $n => $f) {
-                    $this->copyFile(14, $f, $base.'/Tindakan '.$a->id.'-'.($n + 1).'_'.$f->original_name, "Bukti tindakan {$ncr->number}");
+                    $this->copyFile(14, $f, $base.'/Tindakan '.$a->id.'-'.($n + 1).'_'.$this->seg($f->original_name), "Bukti tindakan {$ncr->number}");
                 }
             }
         }
@@ -247,7 +247,7 @@ class EvidencePackageBuilder
             $checks->map(fn ($c) => [$c->ncr->number, $c->cycle, $c->day, $c->due_date->format('Y-m-d'), $c->checked_at->format('Y-m-d'), $c->result, $c->note, $c->checker?->name]), 'Laporan pemantauan efektivitas 30/60/90 hari');
         foreach ($checks as $c) {
             foreach ($c->attachments as $n => $f) {
-                $this->copyFile(15, $f, str_replace('/', '-', $c->ncr->number).'/Hari '.$c->day.' - '.($n + 1).'_'.$f->original_name, "Bukti efektivitas {$c->ncr->number} hari ke-{$c->day}");
+                $this->copyFile(15, $f, str_replace('/', '-', $c->ncr->number).'/Hari '.$c->day.' - '.($n + 1).'_'.$this->seg($f->original_name), "Bukti efektivitas {$c->ncr->number} hari ke-{$c->day}");
             }
         }
     }
@@ -271,6 +271,12 @@ class EvidencePackageBuilder
     }
 
     // ---------------------------------------------------------------- utilitas
+
+    /** Satu segmen nama berkas/folder: garis miring di nomor/judul (mis. no. SK 5/000076/…) tidak boleh memecah folder. */
+    private function seg(string $name): string
+    {
+        return str_replace(['/', '\\'], '-', $name);
+    }
 
     private function dir(int $n): string
     {
